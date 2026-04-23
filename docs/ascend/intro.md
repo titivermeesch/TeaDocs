@@ -7,9 +7,7 @@ title: What is Ascend
 
 Ascend is a free-for-all evolution-style minigame built on [Tea](../tea/intro.md). Players start as a basic morph, kill opponents to earn the right to evolve, sneak on solid ground for three seconds to advance a stage, and race to the apex form to win.
 
-It ships as a single plugin, `Ascend`, that declares `depend: [TeaCore, LibsDisguises]`. It's installed on any server you want to host Ascend matches on - all the lobby, matchmaking, and cross-server routing comes from Tea underneath.
-
-Ascend is also the reference implementation for building a game on Tea. Its source at `ascend/src/main/java/me/playbosswar/ascend/` is a worked example of everything in the [Tea developer docs](../tea/dev/architecture.md).
+It ships as a single plugin that depends on TeaCore and LibsDisguises. Install it on any server you want to host Ascend matches on — all the lobby, matchmaking, and cross-server routing come from Tea underneath.
 
 ## Where to next
 

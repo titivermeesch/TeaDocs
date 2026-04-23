@@ -13,6 +13,8 @@ const sidebars: SidebarsConfig = {
         'tea/user/configuring-network-mode',
         'tea/user/theme-and-i18n',
         'tea/user/adding-a-map',
+        'tea/user/permissions',
+        'tea/user/dashboard',
         'tea/user/troubleshooting',
       ],
     },
