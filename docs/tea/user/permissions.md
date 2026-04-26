@@ -5,7 +5,7 @@ title: Permissions
 
 # Permissions
 
-Every TeaCore and TeaLobby command is gated by a Bukkit permission node. Ascend does not register its own commands — it uses TeaCore's `/tea` tree, so no Ascend-specific permissions exist.
+Every TeaCore command is gated by a Bukkit permission node. Game plugins built on Tea may either register their own commands (with their own permissions) or hook into TeaCore's `/tea` tree; per-game permissions are documented by each game.
 
 The tables below list every node, what grants it by default, and which command(s) it controls. Use your permissions plugin (LuckPerms, PermissionsEx, etc.) to hand out or revoke them per group.
 
@@ -17,20 +17,15 @@ The tables below list every node, what grants it by default, and which command(s
 | `tea.reload` | op | `/tea reload` — reload config, theme, and locale bundles. |
 | `tea.version` | everyone | `/tea version` — print the running TeaCore version. |
 | `tea.arena.admin` | op | `/tea arena allocate`, `/tea arena release`, `/tea arena start`, `/tea arena observe` — spin up, tear down, force-start, and staff-observe arenas. |
-| `tea.arena.play` | everyone | `/tea arena join`, `/tea arena spectate`, `/tea arena leave` — player-side arena entry. |
+| `tea.arena.play` | everyone | `/tea arena join`, `/tea arena spectate`, `/tea arena leave`, plus the top-level `/leave` and `/queue` commands — player-side arena entry, exit, and status. |
 | `tea.map.admin` | op | Every `/tea map <subcommand>` — author, save, edit, delete map definitions. Game plugins' map-authoring extensions (for example marking game-specific spawn points) also run under this node since they are registered as `/tea map` subcommands. |
 | `tea.chat.use` | everyone | `/chat` — switch the active chat channel. Always allows the `match` and `team` channels. |
 | `tea.chat.staff` | op | Read and send messages on the staff channel (`/chat staff`). |
 | `tea.chat.global` | op | Send messages on the global channel (`/chat global`). Everyone can still receive global messages. |
 | `tea.kit` | everyone | `/kit` — open the kit picker, or select a kit by id. |
 | `tea.stats` | everyone | `/tea stats` — view **your own** stats. Viewing another player's stats (`/tea stats <player>`) additionally requires `tea.admin`. |
-
-## TeaLobby
-
-| Permission | Default | What it grants |
-| ---------- | ------- | -------------- |
-| `tea.lobby.play` | everyone | `/play <game> [map]`, `/leave`, `/queue` — queue for a game, drop out, and check queue/arena status. |
-| `tea.lobby.admin` | op | `/tealobby` and all its subcommands — `sign bind\|unbind\|list`, `spawn set\|tp`, `config show\|manage-spawn\|gamemode`, and `reload`. |
+| `tea.lobby.play` | everyone | `/play <game> [map]` — queue for a game from the lobby. (`/leave` and `/queue` are gated by `tea.arena.play` above so they work on every server.) Only effective on servers where `lobby.enabled: true`. |
+| `tea.lobby.admin` | op | `/tealobby` and all its subcommands — `sign bind\|unbind\|list`, `spawn set\|tp`, `config show\|manage-spawn\|gamemode`, and `reload`. Only effective on servers where `lobby.enabled: true`. |
 
 ## Common permission recipes
 
@@ -61,4 +56,4 @@ The tables below list every node, what grants it by default, and which command(s
 
 - `tea.admin` is an umbrella permission: granting it automatically grants every child node listed above. You don't need to list children separately unless you want to override one back to `false`.
 - The dashboard is not gated by Bukkit permissions — it uses a single admin token configured in `plugins/TeaCore/config.yml`. See the Dashboard page.
-- Event-driven flows (the matchmaker teleporting players at match start, TeaLobby spawning players on respawn) bypass permission checks — those are server-side operations, not commands.
+- Event-driven flows (the matchmaker teleporting players at match start, the lobby UI spawning players on respawn) bypass permission checks — those are server-side operations, not commands.

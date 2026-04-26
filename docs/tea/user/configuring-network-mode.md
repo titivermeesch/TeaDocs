@@ -40,7 +40,7 @@ database:
 arena-pool:
   mode: standalone
   games:
-    ascend:
+    mygame:
       min-available: 1       # keep at least 1 waiting arena around
       max-total: 4           # never exceed 4 concurrent arenas
       preload-on-startup: 1  # spin up 1 arena at plugin enable
@@ -48,10 +48,11 @@ arena-pool:
 
 ### Running
 
-1. Drop `TeaCore.jar`, `TeaLobby.jar`, and each game jar (e.g. `Ascend.jar`) into `plugins/`.
-2. Start the server. `/tea game list` should show every registered game.
-3. `/tea map create <game> <map>` to author your first map.
-4. `/play <game>` to join. Pool automatically spins arenas up to `max-total`.
+1. Drop the `TeaCore` jar and each game jar into `plugins/`.
+2. Set `lobby.enabled: true` in `plugins/TeaCore/config.yml` (this single server hosts both the lobby UI and the arenas).
+3. Start the server. `/tea game list` should show every registered game.
+4. `/tea map create <game> <map>` to author your first map.
+5. `/play <game>` to join. Pool automatically spins arenas up to `max-total`.
 
 ## Central
 
@@ -76,6 +77,7 @@ network:
   mode: bungeecord           # activates the Redis-backed coordination backend
   server-id: arena-1         # set per server: "lobby", "arena-1", "arena-2", ...
   lobby-server: lobby        # name of the lobby server in the proxy's server list
+  eligible-matchmaker: false # only the lobby is eligible; arena servers stay false
 
 redis:
   host: redis.internal
@@ -94,21 +96,27 @@ database:
 arena-pool:
   mode: central
   games:
-    ascend:
+    # In central mode, the LOBBY's arena-pool.games config is the single
+    # source of truth for fleet-wide pool sizing. Arena servers don't need
+    # this section populated — they just declare themselves as hosts and
+    # accept ALLOCATE_ARENA control commands from the lobby. Put this block
+    # on the lobby only, with one entry per game id you want auto-scaled.
+    mygame:
       # These are NETWORK-WIDE totals in central mode, not per-server.
       min-available: 2       # keep 2 joinable arenas across the whole fleet
-      max-total: 16          # never exceed 16 total Ascend arenas
+      max-total: 16          # never exceed 16 total arenas
       preload-on-startup: 0  # ignored in central mode (leader handles it)
 ```
 
 ### Running
 
-1. Install `TeaCore.jar` + every game jar on every server. Install `TeaLobby.jar` on the lobby.
-2. Start Redis + MySQL.
-3. Start all servers. Each one registers its hosted games in Redis.
-4. Exactly **one** server (usually the lobby) will grab the matchmaker leader lock. Check its log for `Coordination: redis` — that server runs the pool manager.
-5. Copy your map data into each arena server's `plugins/TeaCore/maps/` directory. (Shared storage like NFS or S3 sync is the usual prod approach.)
-6. `/play <game>` from the proxy joins a players-needed arena on whichever arena server has one.
+1. Install the `TeaCore` jar + every game jar on every server.
+2. On the lobby server, set `lobby.enabled: true` in `plugins/TeaCore/config.yml`. Leave it `false` (the default) on arena servers.
+3. Start Redis + MySQL.
+4. Start all servers. Each one registers its hosted games in Redis.
+5. Set `network.eligible-matchmaker: true` on the lobby and `false` on every arena server. Only eligible servers compete for the matchmaker leader lock and run the cluster-wide pool manager. The lobby's `arena-pool.games` config is then the only sizing source for the fleet.
+6. Copy your map data into each arena server's `plugins/TeaCore/maps/` directory. (Shared storage like NFS or S3 sync is the usual prod approach.)
+7. `/play <game>` from the proxy joins a players-needed arena on whichever arena server has one.
 
 ### Gotcha: maps must exist on each hosting server
 
@@ -157,10 +165,10 @@ arena-pool:
   # or standalone if the lobby is the only server; external only applies to arena pods.
 ```
 
-Per-game end mode (for Ascend):
+Per-game end mode (example — every game plugin exposes the same field in its own config):
 
 ```yaml
-# plugins/Ascend/config.yml
+# plugins/<YourGame>/config.yml
 game:
   end-mode: SHUTDOWN         # JVM exits after the ENDING phase
 ```
@@ -176,7 +184,7 @@ game:
 
 ```
 /tea reload          # TeaCore: config, theme, all locale bundles
-/tealobby reload     # TeaLobby: reloads signs + spawn settings
+/tealobby reload     # Reload connection signs + lobby spawn settings (the lobby UI inside TeaCore)
 ```
 
 Neither command reconnects Redis or the DB pool — restart the server for those.

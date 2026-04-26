@@ -113,4 +113,4 @@ This is the pattern to use when you're dispatching abilities yourself rather tha
 
 ## Skipping the kit/ability API entirely
 
-If the "one ability belongs to a kit binding" shape doesn't fit your game, write your own Bukkit listener that dispatches directly to ability classes and call `CooldownService` manually. You lose automatic trigger wiring and kit integration, but you gain full control. See the Ascend dev docs for [Custom abilities](../../ascend/dev/custom-abilities.md) if you're looking at it specifically to extend Ascend.
+If the "one ability belongs to a kit binding" shape doesn't fit your game, write your own Bukkit listener that dispatches directly to ability classes and call `CooldownService` manually. You lose automatic trigger wiring and kit integration, but you gain full control.

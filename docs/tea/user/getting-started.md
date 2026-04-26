@@ -5,12 +5,12 @@ title: Getting started
 
 # Getting started
 
-Tea is a two-plugin system for running Minecraft minigames on Spigot (1.20.5+):
+Tea is a single-plugin engine for running Minecraft minigames on Spigot (1.20.5+):
 
 - **TeaCore** - the engine. Every server that runs a game needs this.
-- **TeaLobby** - the hub-side plugin. Provides `/play`, `/leave`, `/queue`, connection signs, and lobby spawn management.
+- **Lobby features** (connection signs, `/play`, `/leave`, `/queue`, lobby spawn / gamemode management) ship inside TeaCore and are toggled on with `lobby.enabled: true` in `plugins/TeaCore/config.yml`. Set this on every hub server; leave it off (the default) on arena-only servers.
 
-Games are separate plugin jars on top of Tea. This section is about installing and operating Tea itself - for any specific game, see its own docs section (for example [Ascend](../../ascend/intro.md)).
+Games are separate plugin jars on top of Tea. This section is about installing and operating Tea itself; for any specific game, see its own docs section.
 
 ## Minimum requirements
 
@@ -34,8 +34,8 @@ Pick one when setting `network.mode` in `plugins/TeaCore/config.yml`. All game b
 
 ## Next steps
 
-1. [Install TeaCore and TeaLobby](./installing.md)
+1. [Install TeaCore](./installing.md)
 2. [Configure network mode, DB, and Redis](./configuring-network-mode.md)
 3. [Theme and translations](./theme-and-i18n.md)
 4. [Author your first map](./adding-a-map.md)
-5. Install and run a game on top of Tea - for example [Ascend](../../ascend/user/installing.md).
+5. Install and run a Tea-based game on top of the engine.

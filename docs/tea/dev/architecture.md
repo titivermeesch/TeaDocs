@@ -5,12 +5,11 @@ title: Architecture
 
 # Architecture
 
-Tea is two Spigot plugins built with Gradle (Kotlin DSL) and shaded into fat jars. They compile against the Spigot API from version 1.20.5 onward (the first Minecraft version to require Java 21):
+Tea is one Spigot plugin built with Gradle (Kotlin DSL) and shaded into a fat jar. It compiles against the Spigot API from version 1.20.5 onward (the first Minecraft version to require Java 21):
 
-- **TeaCore** - the engine. All shared infrastructure.
-- **TeaLobby** - hub-side routing (`/play`, `/leave`, `/queue`, connection signs, lobby spawn).
+- **TeaCore** - the engine. All shared infrastructure, plus the hub-side lobby UI (`/play`, `/leave`, `/queue`, connection signs, lobby spawn / gamemode management) gated by `lobby.enabled` in `plugins/TeaCore/config.yml`.
 
-Games (for example Ascend, and anything you write) are separate plugin jars that declare `depend: [TeaCore]` and consume the TeaCore API.
+Games are separate plugin jars that declare `depend: [TeaCore]` and consume the TeaCore API.
 
 Tea targets Java 21 and the plain Spigot API. No NMS, no Paper-only APIs - so the same jars run on Spigot, Paper, Purpur, and any Paper-based fork.
 
@@ -77,7 +76,7 @@ Cross-server player moves happen via the legacy `BungeeCord` plugin-message chan
 
 ## Persistence
 
-`TeaCore` owns two tables: `tea_schema_versions` (the migration bookkeeping table) and `tea_player_profile` (shared player profile). Every dependent plugin registers its own migrations at enable time - TeaCore's migration runner picks them up, applies anything new, and records the version in `tea_schema_versions(plugin_name, version)`. See [Persistence guide](./persistence-guide.md).
+`TeaCore` owns three tables: `tea_schema_versions` (the migration bookkeeping table), `tea_player_profile` (shared player profile), and `tea_lobby_signs` (connection-sign bindings, created by TeaCore's V003 migration). Every dependent plugin registers its own migrations at enable time - TeaCore's migration runner picks them up, applies anything new, and records the version in `tea_schema_versions(plugin_name, version)`. See [Persistence guide](./persistence-guide.md).
 
 Both `sqlite-jdbc` and `mysql-connector-j` stay unrelocated inside the shadow jar so their native libraries and service metadata continue to load correctly.
 

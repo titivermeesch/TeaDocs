@@ -9,7 +9,7 @@ Tea's map authoring runs entirely through `/tea map ...` commands. Each authorin
 
 WorldEdit or FastAsyncWorldEdit must be installed on the server for schematic capture to work. Tea owns the save itself - you do not need to run `//schem save`.
 
-Every game built on Tea shares this authoring flow. Games extend `/tea map` with their own subcommands via the map-extension registry - see each game's own map-authoring page for those extras. For example, Ascend registers `/tea map evolutionviewer` and `/tea map evolutionmob` for its evolution ceremony.
+Every game built on Tea shares this authoring flow. Games extend `/tea map` with their own subcommands via the map-extension registry — see each game's own map-authoring page for those extras.
 
 ## Required fields
 
@@ -28,7 +28,7 @@ Games may enforce additional required spawns on top of these. `/tea map status` 
 /tea map create <gameId> <mapId>
 ```
 
-For example, `/tea map create ascend jungle` creates a void world `tea_edit_<you>_ascend_jungle`, teleports you to `(0, 64, 0)`, and puts you in creative mode with an empty draft.
+For example, `/tea map create mygame jungle` creates a void world `tea_edit_<you>_mygame_jungle`, teleports you to `(0, 64, 0)`, and puts you in creative mode with an empty draft.
 
 Build your map, or paste an existing schematic with WorldEdit's `//paste`.
 
@@ -63,7 +63,7 @@ Set the map's player bounds:
 /tea map max 10
 ```
 
-Set any game-specific spawns the game you're authoring for requires. For Ascend, see the [Ascend map-authoring page](../../ascend/user/map-authoring.md).
+Set any game-specific spawns the game you're authoring for requires. Each game documents its own extra spawn commands.
 
 Check what's still missing at any point:
 
@@ -93,7 +93,7 @@ Modify anything:
 - Move `pos1` / `pos2` to re-size the captured region.
 - Walk to a new location and run `/tea map addspawn` to add a spawn.
 - Run `/tea map clearspawns` to wipe all participant spawns and re-add them from scratch.
-- Re-run any game-specific extension commands (for example `/tea map evolutionviewer` and `/tea map evolutionmob` for Ascend).
+- Re-run any game-specific extension commands the game registers under `/tea map`.
 - Update `/tea map min` / `/tea map max`.
 
 Save:

@@ -5,34 +5,40 @@ title: Installing the engine
 
 # Installing the engine
 
-Tea is distributed as two plugin jars: `TeaCore` and `TeaLobby`. Which ones you install depends on what a given server is supposed to do.
+Tea is distributed as a single plugin jar: `TeaCore`. Lobby features (connection signs, `/play`, lobby spawn / gamemode management) ship inside that same jar and are turned on per server with a config toggle.
 
 ## Which plugins go where
 
-| Server role | Plugins to install | Why |
-| ----------- | ------------------ | --- |
-| Lobby / hub | `TeaCore`, `TeaLobby` | `/play`, `/leave`, `/queue`, connection signs, lobby-side matchmaker |
-| Game server (arena) | `TeaCore` + your game's jar | Runs matches; games declare `depend: [TeaCore]` |
-| Single-server deployment | Everything above | All plugins in the same JVM |
+| Server role | Plugins to install | TeaCore config | Why |
+| ----------- | ------------------ | -------------- | --- |
+| Lobby / hub | `TeaCore` | `lobby.enabled: true` | `/play`, `/leave`, `/queue`, connection signs, lobby-side matchmaker |
+| Game server (arena) | `TeaCore` + your game's jar | `lobby.enabled: false` | Runs matches; games declare `depend: [TeaCore]` |
+| Single-server deployment | `TeaCore` + your game's jar | `lobby.enabled: true` | One JVM hosts both lobby and arenas |
 
-`TeaLobby` declares `depend: [TeaCore]`. Any game plugin built on Tea (for example Ascend) does the same. Game plugins may add their own hard dependencies - check the installation page for each game.
+Any game plugin built on Tea declares `depend: [TeaCore]`. Game plugins may add their own hard dependencies - check the installation page for each game.
 
 WorldEdit or FastAsyncWorldEdit is a soft-dependency of TeaCore. It's only required for map authoring (`/tea map create`, `/tea map edit`) and for pasting schematics at arena allocation time. Nothing else needs it.
 
 ## First boot
 
-1. Drop `TeaCore.jar` and `TeaLobby.jar` into `plugins/` on each server, plus any game jars you want to run there.
-2. Start the server once. Each plugin extracts its defaults:
+1. Drop the `TeaCore` jar into `plugins/` on each server, plus any game jars you want to run there.
+2. Start the server once. TeaCore extracts its defaults:
    - `plugins/TeaCore/config.yml`
    - `plugins/TeaCore/theme.yml`
    - `plugins/TeaCore/lang/en_US.yml`
-   - `plugins/TeaLobby/config.yml`, `plugins/TeaLobby/lang/en_US.yml`
    - Each game's own config and lang files
-3. Stop the server, edit those files as needed (see [Network mode](./configuring-network-mode.md) and [Theme](./theme-and-i18n.md)), then start again.
+3. Stop the server. Edit `plugins/TeaCore/config.yml` as needed (see [Network mode](./configuring-network-mode.md) and [Theme](./theme-and-i18n.md)). On any server that should host the lobby UI, set:
+
+   ```yaml
+   lobby:
+     enabled: true
+   ```
+
+   Leave it `false` (the default) on arena-only servers. Then start the server again.
 
 ## Upgrading
 
-Replace the jar and restart. On enable, each plugin merges newly-added translation keys and config defaults from its jar into your on-disk files, so your customizations survive upgrades and any new keys still work.
+Replace the jar and restart. On enable, TeaCore (and each game plugin) merges newly-added translation keys and config defaults from its jar into your on-disk files, so your customizations survive upgrades and any new keys still work.
 
 If you ever end up with a corrupt or partially-edited language file, delete `plugins/<PluginName>/lang/*.yml` and restart - the bundles will be re-extracted.
 

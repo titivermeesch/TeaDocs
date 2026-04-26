@@ -33,11 +33,11 @@ The global `prefix:` is prepended to every `send(...)` call that goes through th
 
 Each plugin ships its own locale bundle in `plugins/<PluginName>/lang/<locale>.yml`. On enable, each plugin writes any jar-bundled keys that are missing from your on-disk file back into the file, so newly-released translation keys work out of the box without clobbering any of your customizations.
 
-Keys are prefixed per plugin to avoid collisions:
+Keys are prefixed per namespace to avoid collisions:
 
-- `core.*` - TeaCore
-- `lobby.*` - TeaLobby
-- Each game owns its own prefix (for example Ascend uses `ascend.*`)
+- `core.*` - TeaCore engine
+- `lobby.*` - lobby UI inside TeaCore (signs, `/play`, lobby spawn / gamemode messages)
+- Each game owns its own prefix (e.g. `<gameid>.*`)
 
 Placeholders use MiniMessage tag syntax: `<player>`, `<count>`, etc. Plugins supply placeholder values when sending the message.
 

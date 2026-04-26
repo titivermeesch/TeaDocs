@@ -1,6 +1,6 @@
 # Tea Docs
 
-Public documentation site for the Tea minigames ecosystem (TeaCore engine, TeaLobby hub, and the Ascend minigame). Built with [Docusaurus](https://docusaurus.io/).
+Public documentation site for the Tea minigames ecosystem (the TeaCore engine and the Ascend minigame). Built with [Docusaurus](https://docusaurus.io/).
 
 Deployed at `https://titivermeesch.github.io/TeaDocs/` by the `deploy.yml` workflow on every push to `main`.
 

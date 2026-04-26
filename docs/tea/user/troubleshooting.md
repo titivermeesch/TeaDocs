@@ -5,15 +5,17 @@ title: Troubleshooting
 
 # Troubleshooting
 
-This page covers issues with the Tea engine itself. Issues specific to a particular game (for example morph, ceremony, or stage problems) belong in that game's troubleshooting page - for instance, [Ascend troubleshooting](../../ascend/user/troubleshooting.md).
+This page covers issues with the Tea engine itself. Issues specific to a particular game belong in that game's own troubleshooting page.
 
 ## TeaCore fails to start with UnsatisfiedLinkError on SQLite
 
 You're on a platform SQLite-JDBC doesn't ship a native library for. Switch to MySQL in `config.yml` or use a supported OS/architecture (most Linux + glibc, Windows, macOS x64/arm64 variants work out of the box). The SQLite native library is intentionally left unrelocated inside the shadow jar, so it loads the correct per-arch binary.
 
-## TeaLobby fails to enable with NoClassDefFoundError: TeaCoreAPI
+## Lobby commands (`/play`, `/tealobby`) report "Unknown command" or do nothing
 
-TeaCore didn't successfully enable - scroll up in the log for the TeaCore error. When TeaCore disables itself, its classloader goes away and dependent plugins lose access to its API classes.
+Lobby features are gated by `lobby.enabled` in `plugins/TeaCore/config.yml`. On a server where it's `false` (the default), the lobby UI is intentionally inert: signs aren't bound, `/play` queries the network instead of acting locally, and lobby-spawn enforcement is off. Set `lobby.enabled: true` on the hub server and restart (or `/tealobby reload`) to turn the lobby UI on.
+
+If TeaCore itself failed to enable, the plugin will be unloaded and every command - lobby and arena alike - disappears. Scroll up in the log for the TeaCore error and address that first.
 
 ## `/play <game>` fails with "Unknown game name"
 

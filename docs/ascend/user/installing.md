@@ -5,7 +5,7 @@ title: Installing Ascend
 
 # Installing Ascend
 
-Ascend is a game plugin that runs on top of Tea. Before you start here, make sure you already have [TeaCore and TeaLobby installed](../../tea/user/installing.md) and [network mode / DB / Redis configured](../../tea/user/configuring-network-mode.md).
+Ascend is a game plugin that runs on top of Tea. Before you start here, make sure you already have [TeaCore installed](../../tea/user/installing.md) and [network mode / DB / Redis configured](../../tea/user/configuring-network-mode.md).
 
 ## Runtime dependencies
 
@@ -31,7 +31,7 @@ Stop the server, edit these as needed (see [Configuration](./configuration.md)),
 
 Install Ascend on every server that should be able to host Ascend matches. In a bungeecord/multi-server deployment, that's usually the arena servers but not the lobby hub - the lobby discovers Ascend via the Redis coordination backend and routes players to it over the BungeeCord plugin-message channel.
 
-In a single-server (`network.mode: standalone`) deployment, install Ascend on that one server alongside TeaCore and TeaLobby.
+In a single-server (`network.mode: standalone`) deployment, install Ascend on that one server alongside TeaCore (with `lobby.enabled: true` in `plugins/TeaCore/config.yml` so the same JVM hosts both the lobby UI and the arenas).
 
 ## Upgrading
 

@@ -15,6 +15,7 @@ const sidebars: SidebarsConfig = {
         'tea/user/adding-a-map',
         'tea/user/permissions',
         'tea/user/dashboard',
+        'tea/user/economy',
         'tea/user/troubleshooting',
       ],
     },

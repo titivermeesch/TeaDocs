@@ -5,7 +5,7 @@ title: Extending with a new game
 
 # Extending with a new game
 
-A Tea game is a standard Spigot plugin that declares `depend: [TeaCore]` and registers a `GameDefinition` on enable. This page walks through building a hypothetical `MyGame` plugin end-to-end. For an example of a game built on Tea, see [Ascend](../../ascend/intro.md).
+A Tea game is a standard Spigot plugin that declares `depend: [TeaCore]` and registers a `GameDefinition` on enable. This page walks through building a hypothetical `MyGame` plugin end-to-end.
 
 ## 1. `plugin.yml`
 
@@ -257,7 +257,7 @@ Each game plugin ships its own `lang/<locale>.yml` bundle and registers it on en
 core.messageService().registerBundles(this, List.of("en_US"));
 ```
 
-Prefix all keys with your game id (for example `mygame.match.won`, `mygame.stage.forest`) so they don't collide with TeaCore (`core.*`), TeaLobby (`lobby.*`), or other games. Ship whatever locales you want here - the list you pass is loaded from your jar's `lang/<locale>.yml` resources, and admins can override them with files in `plugins/<YourPlugin>/lang/`.
+Prefix all keys with your game id (for example `mygame.match.won`, `mygame.stage.forest`) so they don't collide with TeaCore (`core.*`), TeaCore's lobby features (`lobby.*`), or other games. Ship whatever locales you want here - the list you pass is loaded from your jar's `lang/<locale>.yml` resources, and admins can override them with files in `plugins/<YourPlugin>/lang/`.
 
 ## 10. Putting it together
 
