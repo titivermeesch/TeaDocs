@@ -7,7 +7,7 @@ title: Architecture
 
 Tea is one Spigot plugin built with Gradle (Kotlin DSL) and shaded into a fat jar. It compiles against the Spigot API from version 1.20.5 onward (the first Minecraft version to require Java 21):
 
-- **TeaCore** - the engine. All shared infrastructure, plus the hub-side lobby UI (`/play`, `/leave`, `/queue`, connection signs, lobby spawn / gamemode management) gated by `lobby.enabled` in `plugins/TeaCore/config.yml`.
+- **TeaCore** - the engine. All shared infrastructure, plus the hub-side lobby UI (`/play`, `/leave`, connection signs, lobby spawn / gamemode management) gated by `lobby.enabled` in `plugins/TeaCore/config.yml`.
 
 Games are separate plugin jars that declare `depend: [TeaCore]` and consume the TeaCore API.
 

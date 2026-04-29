@@ -21,12 +21,11 @@ The apex stage does **not** auto-win on arrival. Once at the apex, the player mu
 - `/play ascend` - join any available Ascend arena (queues if cross-server).
 - `/play ascend <mapId>` - queue for a specific map.
 - `/leave` - drop out of the current arena.
-- `/queue` - show your current arena and state.
 - `/chat match | team | staff | global` - switch chat scope.
 
 Kit selection happens through the in-game kit-selector GUI - right-click the Nether Star in the waiting area to open it.
 
-You can also queue by right-clicking a connection sign an admin has bound via `/tealobby sign bind ascend [mapId]` (see the [Tea user guide](../../tea/user/configuring-network-mode.md) for sign/spawn admin details).
+You can also queue by right-clicking a connection sign an admin has bound via `/tea lobby sign bind ascend [mapId]` (see the [Tea user guide](../../tea/user/configuring-network-mode.md) for sign/spawn admin details).
 
 ## Admin commands
 
@@ -35,7 +34,7 @@ Arena and lobby admin commands are shipped by Tea - see the [Tea user guide](../
 - `/tea arena allocate ascend [map]` - force-allocate an arena (for testing).
 - `/tea arena start <arenaId>` - fast-forward the current WAITING/COUNTDOWN phase.
 - `/tea arena observe <arenaId>` - drop in as an invisible spectator.
-- `/tealobby sign bind ascend [map]` - bind a connection sign to Ascend.
+- `/tea lobby sign bind ascend [map]` - bind a connection sign to Ascend.
 
 ## Default ladder
 

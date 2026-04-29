@@ -8,7 +8,7 @@ title: Getting started
 Tea is a single-plugin engine for running Minecraft minigames on Spigot (1.20.5+):
 
 - **TeaCore** - the engine. Every server that runs a game needs this.
-- **Lobby features** (connection signs, `/play`, `/leave`, `/queue`, lobby spawn / gamemode management) ship inside TeaCore and are toggled on with `lobby.enabled: true` in `plugins/TeaCore/config.yml`. Set this on every hub server; leave it off (the default) on arena-only servers.
+- **Lobby features** (connection signs, `/play`, `/leave`, lobby spawn / gamemode management) ship inside TeaCore and are toggled on with `lobby.enabled: true` in `plugins/TeaCore/config.yml`. Set this on every hub server; leave it off (the default) on arena-only servers.
 
 Games are separate plugin jars on top of Tea. This section is about installing and operating Tea itself; for any specific game, see its own docs section.
 

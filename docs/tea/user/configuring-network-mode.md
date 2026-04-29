@@ -184,7 +184,7 @@ game:
 
 ```
 /tea reload          # TeaCore: config, theme, all locale bundles
-/tealobby reload     # Reload connection signs + lobby spawn settings (the lobby UI inside TeaCore)
+/tea lobby reload    # Reload connection signs + lobby spawn settings (the lobby UI inside TeaCore)
 ```
 
 Neither command reconnects Redis or the DB pool — restart the server for those.

@@ -17,15 +17,15 @@ The tables below list every node, what grants it by default, and which command(s
 | `tea.reload` | op | `/tea reload` — reload config, theme, and locale bundles. |
 | `tea.version` | everyone | `/tea version` — print the running TeaCore version. |
 | `tea.arena.admin` | op | `/tea arena allocate`, `/tea arena release`, `/tea arena start`, `/tea arena observe` — spin up, tear down, force-start, and staff-observe arenas. |
-| `tea.arena.play` | everyone | `/tea arena join`, `/tea arena spectate`, `/tea arena leave`, plus the top-level `/leave` and `/queue` commands — player-side arena entry, exit, and status. |
+| `tea.arena.play` | everyone | `/tea arena join`, `/tea arena spectate`, `/tea arena leave`, plus the top-level `/leave` command — player-side arena entry and exit. |
 | `tea.map.admin` | op | Every `/tea map <subcommand>` — author, save, edit, delete map definitions. Game plugins' map-authoring extensions (for example marking game-specific spawn points) also run under this node since they are registered as `/tea map` subcommands. |
 | `tea.chat.use` | everyone | `/chat` — switch the active chat channel. Always allows the `match` and `team` channels. |
 | `tea.chat.staff` | op | Read and send messages on the staff channel (`/chat staff`). |
 | `tea.chat.global` | op | Send messages on the global channel (`/chat global`). Everyone can still receive global messages. |
 | `tea.kit` | everyone | `/kit` — open the kit picker, or select a kit by id. |
 | `tea.stats` | everyone | `/tea stats` — view **your own** stats. Viewing another player's stats (`/tea stats <player>`) additionally requires `tea.admin`. |
-| `tea.lobby.play` | everyone | `/play <game> [map]` — queue for a game from the lobby. (`/leave` and `/queue` are gated by `tea.arena.play` above so they work on every server.) Only effective on servers where `lobby.enabled: true`. |
-| `tea.lobby.admin` | op | `/tealobby` and all its subcommands — `sign bind\|unbind\|list`, `spawn set\|tp`, `config show\|manage-spawn\|gamemode`, and `reload`. Only effective on servers where `lobby.enabled: true`. |
+| `tea.lobby.play` | everyone | `/play <game> [map]` — queue for a game from the lobby. (`/leave` is gated by `tea.arena.play` above so it works on every server.) Only effective on servers where `lobby.enabled: true`. |
+| `tea.lobby.admin` | op | `/tea lobby` and all its subcommands — `sign bind\|unbind\|list`, `spawn set\|tp`, `config show\|manage-spawn\|gamemode`, and `reload`. Only effective on servers where `lobby.enabled: true`. |
 
 ## Common permission recipes
 

@@ -11,9 +11,9 @@ This page covers issues with the Tea engine itself. Issues specific to a particu
 
 You're on a platform SQLite-JDBC doesn't ship a native library for. Switch to MySQL in `config.yml` or use a supported OS/architecture (most Linux + glibc, Windows, macOS x64/arm64 variants work out of the box). The SQLite native library is intentionally left unrelocated inside the shadow jar, so it loads the correct per-arch binary.
 
-## Lobby commands (`/play`, `/tealobby`) report "Unknown command" or do nothing
+## Lobby commands (`/play`, `/tea lobby`) report "Unknown command" or do nothing
 
-Lobby features are gated by `lobby.enabled` in `plugins/TeaCore/config.yml`. On a server where it's `false` (the default), the lobby UI is intentionally inert: signs aren't bound, `/play` queries the network instead of acting locally, and lobby-spawn enforcement is off. Set `lobby.enabled: true` on the hub server and restart (or `/tealobby reload`) to turn the lobby UI on.
+Lobby features are gated by `lobby.enabled` in `plugins/TeaCore/config.yml`. On a server where it's `false` (the default), the lobby UI is intentionally inert: signs aren't bound, `/play` queries the network instead of acting locally, and lobby-spawn enforcement is off. Set `lobby.enabled: true` on the hub server and restart (or `/tea lobby reload`) to turn the lobby UI on.
 
 If TeaCore itself failed to enable, the plugin will be unloaded and every command - lobby and arena alike - disappears. Scroll up in the log for the TeaCore error and address that first.
 

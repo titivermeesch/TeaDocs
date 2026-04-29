@@ -11,7 +11,7 @@ Tea is distributed as a single plugin jar: `TeaCore`. Lobby features (connection
 
 | Server role | Plugins to install | TeaCore config | Why |
 | ----------- | ------------------ | -------------- | --- |
-| Lobby / hub | `TeaCore` | `lobby.enabled: true` | `/play`, `/leave`, `/queue`, connection signs, lobby-side matchmaker |
+| Lobby / hub | `TeaCore` | `lobby.enabled: true` | `/play`, `/leave`, connection signs, lobby-side matchmaker |
 | Game server (arena) | `TeaCore` + your game's jar | `lobby.enabled: false` | Runs matches; games declare `depend: [TeaCore]` |
 | Single-server deployment | `TeaCore` + your game's jar | `lobby.enabled: true` | One JVM hosts both lobby and arenas |
 
