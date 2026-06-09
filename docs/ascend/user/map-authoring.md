@@ -18,14 +18,12 @@ On top of the core requirements (pos1, pos2, waiting spawn, at least one partici
 
 ## Designing a ceremony chamber
 
-Because the ceremony spawns and despawns mob puppets per-viewer via PacketEvents (nobody else in the arena sees anything), you don't need to keep the chamber hidden from the main arena. But a few layout tips make the ceremony feel good:
+The ceremony is per-player - nobody else in the arena sees what's happening - so you don't need to hide the chamber from the rest of the map. A few layout tips make it feel good:
 
 - Put the **viewer** spawn in an open "balcony" or cinematic position, facing the mob spawn.
 - Put the **mob** spawn a few blocks in front of the viewer, at eye level or slightly below, facing the viewer. A 4-6 block gap usually looks best.
 - Size the chamber so the mob puppets fit comfortably. The largest morphs (Iron Golem, Warden) need roughly a 4-block-tall, 3-block-wide space.
-- Multiple players can be evolving simultaneously. Since each one has their own packet-only mob, overlap is fine - the chamber only needs to fit one physical puppet size, even at peak concurrent evolutions.
-
-If either evolution spawn is missing from the map, Ascend falls back to an in-place evolve with no ceremony. Old maps authored before evolution spawns were added still work - they just skip the cinematic.
+- Multiple players can be evolving at the same time without interfering, so the chamber only needs to fit one puppet at a time.
 
 ## Ascend-specific commands
 
@@ -43,7 +41,7 @@ Stand where the evolving player should be locked during an evolution ceremony an
 
 Stand where the old/new mob puppets should appear (typically a few blocks in front of the viewer, at eye level) and run this. Facing direction is captured - point toward where the viewer will be.
 
-You can re-run either command at any time during the edit session to move the spawn. The previous value is overwritten. Both commands are contributed by Ascend via TeaCore's map-extension registry; the stored values live under an `extensions:` section in the map YAML.
+You can re-run either command at any time during the edit session to move the spawn. The previous value is overwritten.
 
 ## Full Ascend authoring workflow
 
@@ -77,4 +75,4 @@ You can re-run either command at any time during the edit session to move the sp
 
 ## Troubleshooting
 
-If the ceremony is in the wrong spot, lands in mid-air, or fires in place despite both spawns being configured, see the [Ascend troubleshooting page](./troubleshooting.md).
+If the ceremony lands in mid-air or the camera angle feels wrong, see the [Ascend troubleshooting page](./troubleshooting.md).

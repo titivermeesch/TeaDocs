@@ -12,4 +12,4 @@ It ships as a single plugin that depends on TeaCore and LibsDisguises. Install i
 ## Where to next
 
 - **[User guide](./user/installing.md)** - install Ascend (assumes Tea is already running), pick maps, tune the ladder, fix common problems.
-- **[Developer docs](./dev/custom-stages.md)** - author new stages in `ascend/config.yml` or write a new `StageAbility` class.
+- **[Authoring a new stage](./dev/custom-stages.md)** - reorder the ladder or add brand-new stages by editing `ascend/config.yml`.

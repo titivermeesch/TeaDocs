@@ -53,7 +53,6 @@ const sidebars: SidebarsConfig = {
       collapsed: false,
       items: [
         'ascend/dev/custom-stages',
-        'ascend/dev/custom-abilities',
       ],
     },
   ],

@@ -10,7 +10,7 @@ Ascend is a free-for-all match where every player starts as the same basic mob a
 ## Core loop
 
 1. Kill an opponent. This unlocks one evolve charge.
-2. Stand on solid ground, hold sneak for 3 seconds (2 with the Quick Evolver kit). No damage in that window.
+2. Stand on solid ground, hold sneak for 3 seconds (2 with the Quick Evolver kit).
 3. The [evolution ceremony](#evolution-ceremony) plays and your morph advances one stage.
 4. Repeat until you've climbed to the apex (Chicken by default), then get one more kill and one more evolve to win.
 
@@ -38,7 +38,7 @@ Arena and lobby admin commands are shipped by Tea - see the [Tea user guide](../
 
 ## Default ladder
 
-Ascend ships with 14 stage templates. 6 are enabled by default; the other 8 are scaffolded but disabled so you can swap them in by editing `plugins/Ascend/config.yml`.
+Ascend ships with 13 stage templates. 6 are on the default ladder; the other 7 are scaffolded but inactive - slot them into `stage-order:` in `plugins/Ascend/config.yml` to use them.
 
 | # | Stage | HP | Melee | Ability | Notes |
 | - | ----- | -- | ----- | ------- | ----- |
@@ -68,11 +68,10 @@ Each stage has exactly one ability. The full catalog of 14 shipped abilities:
 | `crossbow_volley` | Multi-arrow volley (Piglin). |
 | `soul_slash` | Withering cleave (Wither Skeleton). |
 | `molten_bounce` | Bouncy AoE slam (Magma Cube). |
-| `fireball` | Launches a small fireball (Ghast). |
 | `sonic_boom` | Line-AoE shockwave (Warden). |
 | `dive_bomb` | Aerial nosedive attack (Phantom). |
 
-Two abilities are config-driven today (`flamethrower` and `sulphur_bomb`); the rest use hardcoded defaults inside their ability class. See [Configuration](./configuration.md) for the tunable values.
+Every ability is fully config-driven - cooldowns, damage, range, durations, knockback, fire ticks - tune them under `abilities.<id>:` in `plugins/Ascend/config.yml`. See [Configuration](./configuration.md) for the tunable values.
 
 ## Kits
 
@@ -96,21 +95,20 @@ Set `devolve-on-death: false` in `plugins/Ascend/config.yml` if you want pure ki
 
 ## Evolution ceremony
 
-When a player evolves, they don't just morph in place. Instead:
+When a player evolves, they're whisked off to a private ceremony chamber instead of morphing in place:
 
-1. The player is moved to SPECTATOR at the map's `evolution-viewer` extra spawn.
-2. A ticker teleport-locks them there for the duration of the ceremony so they can't fly off.
-3. A fake old-stage mob is spawned at the `evolution-mob` extra spawn via PacketEvents - the spawn packet is sent to **only** the evolving player, so nobody else in the arena sees anything.
-4. Particle burst + sound effects play, the old mob despawns (client-side), and a new-stage mob packet-spawns facing the viewer.
-5. The player is teleported back into a random participant spawn and the new stage is applied.
+1. They're locked into spectator view of the map's ceremony stand.
+2. Their old morph stands in front of them, then dissolves in a particle + thunder burst.
+3. Their new morph appears.
+4. They're returned to a random participant spawn at the new stage.
 
-Multiple players can be evolving at the exact same time without interfering - each one has their own isolated mob puppet. The ceremony only runs when the map has both evolution spawns configured; otherwise Ascend falls back to an in-place evolve.
+The ceremony is per-player - other people in the arena see nothing of what's happening, even when several players evolve at the same time.
 
 See [Map authoring](./map-authoring.md) for how to place the ceremony chamber on a new map.
 
 ## Morphs
 
-In combat, players are visually disguised as their current stage's mob via LibsDisguises. These aren't puppet entities - the player is the disguise, and attackers hit the disguise hitbox normally. `viewSelfDisguise` is off, so players see themselves in first-person but their opponents see the morph.
+In combat, players appear as their current stage's mob - opponents see and hit a Chicken, a Blaze, an Iron Golem, etc. Players see themselves in first-person as normal so the controls don't feel weird.
 
 ## Win condition, timeouts, and ties
 
