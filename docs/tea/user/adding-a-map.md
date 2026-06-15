@@ -22,6 +22,20 @@ A map can only be saved once all of the following are set:
 
 Games may enforce additional required spawns on top of these. `/tea map status` prints every field (core + game-specific) and flags missing ones before you try to save. `/tea map save` validates the same list and refuses to save if anything is missing.
 
+## The setup sidebar
+
+While you have a draft open (after `create` or `edit`), Tea shows a **Map Setup** sidebar that walks you through the steps still left to do. Rather than dumping the whole checklist at once, it shows the next few incomplete steps - each with the exact command to run - plus a `+N more step(s) left` footer so you always know how much is left. As you complete a step it drops off and the next one slides up; once everything required is set the sidebar reads `Ready! Run /tea map save`.
+
+Because the step list is shared by every game, any extra spawns a game requires (via its map extensions) appear in the sidebar automatically, with the right subcommand - no per-game setup needed.
+
+Toggle the sidebar on or off for yourself at any time:
+
+```
+/tea map board
+```
+
+It defaults on each time you start a new authoring session. To turn it off server-wide, set `map-setup-scoreboard.enabled: false` in `plugins/TeaCore/config.yml`.
+
 ## Workflow: creating a brand new map
 
 ```
@@ -65,7 +79,7 @@ Set the map's player bounds:
 
 Set any game-specific spawns the game you're authoring for requires. Each game documents its own extra spawn commands.
 
-Check what's still missing at any point:
+Check what's still missing at any point - the [setup sidebar](#the-setup-sidebar) tracks this live, or print the full checklist in chat:
 
 ```
 /tea map status

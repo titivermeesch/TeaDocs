@@ -19,6 +19,17 @@ depend: [TeaCore]
 
 If your game uses other plugins that must be present at enable time, add them to `depend:`. For example, a game that relies on LibsDisguises for mob morphs would declare `depend: [TeaCore, LibsDisguises]`.
 
+### Pinning a compatible TeaCore version
+
+A game built against one TeaCore API may break against an older or newer core. Guard against that at the very top of `onEnable` so your game refuses to start - rather than fail in confusing ways later - when the installed TeaCore doesn't match what you built against:
+
+```java
+TeaCoreAPI core = TeaCoreAPI.get();
+if (!core.requireVersion(this, ">=0.1.0")) return;
+```
+
+`requireVersion` checks the requirement and, on a mismatch, logs an explanatory error and disables your plugin (so you just `return`). The spec is an operator followed by a version: `==` for an exact core, `>=` for a minimum, plus `>`, `<=`, `<`; a bare version (`"0.1.0"`) means `>=`. Only the numeric `major.minor.patch` is compared - a `-SNAPSHOT` or other qualifier is ignored, so `0.1.0-SNAPSHOT` satisfies `>=0.1.0`. To only check without auto-disabling, call `core.isCompatible(">=0.1.0")` and handle it yourself.
+
 ## 2. Register a `GameDefinition`
 
 ```java
@@ -37,6 +48,7 @@ public final class MyGamePlugin extends JavaPlugin {
     @Override
     public void onEnable() {
         TeaCoreAPI core = TeaCoreAPI.get();
+        if (!core.requireVersion(this, ">=0.1.0")) return;   // see "Pinning a compatible TeaCore" below
 
         GameDefinition def = GameDefinition.builder(MY_GAME, this)
                 .displayNameKey("mygame.name")
@@ -245,7 +257,7 @@ core.maps().extensions().register(SpawnPointExtension.builder(BOSS_PAD)
 Optional<SpawnPoint> pad = map.extension(BOSS_PAD);
 ```
 
-Admins now run `/tea map bosspad` while editing the draft to capture their current location. Core handles YAML round-trips, coordinate translation between edit-world and paste-origin, and the `/tea map status` summary.
+Admins now run `/tea map bosspad` while editing the draft to capture their current location. Core handles YAML round-trips, coordinate translation between edit-world and paste-origin, and the `/tea map status` summary. A `required(true)` extension also shows up as a step in the map-setup sidebar - using your `statusLabel` and subcommand - so admins get authoring guidance for your game with no extra work.
 
 For non-spawn data (entity types, block regions, config-shaped structs), implement `MapExtension<T>` directly. Core calls `handleCommand` when admins type `/tea map <subcommand>`, `toYaml`/`fromYaml` at save/load, and optionally `toRelative`/`toAbsolute` if your value carries coordinates that need to survive the edit-world-to-minCorner relocation. A game that needs two named spawn points (for example a viewer pad and a mob pad for a ceremony) can register two `SpawnPointExtension`s, each with its own key and subcommand.
 
@@ -259,7 +271,22 @@ core.messageService().registerBundles(this, List.of("en_US"));
 
 Prefix all keys with your game id (for example `mygame.match.won`, `mygame.stage.forest`) so they don't collide with TeaCore (`core.*`), TeaCore's lobby features (`lobby.*`), or other games. Ship whatever locales you want here - the list you pass is loaded from your jar's `lang/<locale>.yml` resources, and admins can override them with files in `plugins/<YourPlugin>/lang/`.
 
-## 10. Putting it together
+## 10. Placeholders
+
+Once you register a stats schema (step 7), TeaCore automatically exposes every column as a PlaceholderAPI placeholder `%tea_<gameId>_<stat>%` - no extra work. To add placeholders that aren't stat columns (live match state, computed values), register a `PlaceholderResolver` under your game id:
+
+```java
+core.placeholders().register("mygame", (player, key) -> switch (key) {
+    case "stage" -> player == null ? null
+            : String.valueOf(controller.stageOf(player.getUniqueId()));
+    case "kills_this_round" -> ...;
+    default -> null;          // return null for keys you don't handle
+});
+```
+
+These resolve as `%tea_mygame_stage%`, `%tea_mygame_kills_this_round%`, and so on. Return `null` for any key you don't own so other resolvers (and the auto stat columns) still get a chance. The resolver may receive a `null` or offline player, so guard accordingly. See the [placeholder reference](../user/placeholders.md) for everything TeaCore exposes out of the box.
+
+## 11. Putting it together
 
 Your `onEnable` ends up roughly like this:
 
@@ -267,6 +294,7 @@ Your `onEnable` ends up roughly like this:
 @Override
 public void onEnable() {
     TeaCoreAPI core = TeaCoreAPI.get();
+    if (!core.requireVersion(this, ">=0.1.0")) return;
 
     saveDefaultConfig();
     core.messageService().registerBundles(this, List.of("en_US"));

@@ -14,7 +14,7 @@ On top of the core requirements (pos1, pos2, waiting spawn, at least one partici
 - **Evolution viewer spawn** - where the evolving player is teleport-locked in spectator during the ceremony.
 - **Evolution mob spawn** - where the old-stage and new-stage mob puppets appear for the evolving player to watch.
 
-`/tea map save` refuses to save an Ascend map without both evolution spawns. `/tea map status` lists them as missing so you can see what's left before saving.
+`/tea map save` refuses to save an Ascend map without both evolution spawns. They also appear as steps in the core [setup sidebar](../../tea/user/adding-a-map.md#the-setup-sidebar) and in `/tea map status`, so you can see what's left before saving.
 
 ## Designing a ceremony chamber
 
