@@ -80,14 +80,14 @@ stages:
 | Field | Type | Default | What it does |
 | ----- | ---- | ------- | ------------ |
 | `name-key` | string | `ascend.stage.<id>` | Translation key for the stage display name. |
-| `ability` | string | none | Id of a registered `StageAbility` (or blank/missing for no ability). |
+| `ability` | string | none | Ability id (see [the ability list](../dev/custom-stages.md)), or blank/missing for no ability. |
 | `mob-type` | EntityType | none | Bukkit `EntityType` name used for the morph. |
 | `head-material` | Material | none | Optional worn helmet. |
 | `combat-item` | Material | `STICK` | Hotbar slot-0 flavor item; damage comes from `melee-damage`, not this. |
-| `info-icon` | Material | `MobHeads.iconFor(mob-type)` | Slot-8 icon in the stage info item. |
+| `info-icon` | Material | the mob's head | Slot-8 icon in the stage info item. |
 | `max-health` | double | `20.0` | Half-hearts of max HP. |
 | `melee-damage` | double | `3.0` | Half-hearts per punch. |
-| `walk-speed` | double | `0.22` | `Player.setWalkSpeed` value (`0.20` = vanilla). |
+| `walk-speed` | double | `0.22` | Walking speed (`0.20` = vanilla). |
 | `knockback-resistance` | double 0.0-1.0 | `0.0` | `1.0` = total immunity. |
 | `fall-damage-multiplier` | double 0.0-1.0 | `1.0` | `0` = immune, `0.5` = half, `1` = full. |
 | `water-damage` | bool | `false` | Takes damage while touching water. |
@@ -132,10 +132,11 @@ The `double_jump` block tunes the chicken's mid-air leap (`forward`, `up`) and i
 
 ## `sidebar:` - per-state scoreboard
 
-Ascend attaches a per-player scoreboard to everyone in the arena. Lines are MiniMessage templates with theme tags like `<primary>`, `<accent>`, `<muted>` and per-state placeholders:
+TeaCore draws this sidebar for everyone in an Ascend arena, with one line list per phase. Lines are MiniMessage templates with theme tags like `<primary>`, `<accent>` and `<muted>`, plus placeholders:
 
 ```yaml
 sidebar:
+  enabled: true
   title: "<primary><bold>Ascend</bold></primary>"
   waiting:
     - "<secondary>Kit:</secondary> <accent><kit></accent>"
@@ -156,23 +157,29 @@ sidebar:
     - "<secondary>Your final stage:</secondary> <accent><stage>/<max></accent>"
 ```
 
-### Per-state placeholders
+### Placeholders
 
-- `waiting` - `<kit>`, `<waiting-for>`, `<min>`, `<time>`, `<seconds>`
-- `countdown` - `<kit>`, `<time>`, `<seconds>`
-- `live` - `<kit>`, `<stage>`, `<max>`, `<kills>`, `<alive>`, `<time>`, `<seconds>`, `<ability>`, `<ability-hint>`, `<ability-cooldown>`
-- `ended` - `<kit>`, `<stage>`, `<kills>`, `<winner>`
+Every line can use TeaCore's built-in sidebar tags (`<map>`, `<players>`, `<max-players>`, `<waiting-for>`, `<seconds>`, `<time>`, `<kit>`, `<winner>` and more, see [Sidebars](../../tea/user/sidebars.md)) and any `%placeholderapi%` placeholder. Ascend adds:
 
-`<time>` renders as `mm:ss` (or `hh:mm:ss` for long matches). Raw seconds are on `<seconds>`.
+- `<stage>` and `<max>` - your stage and the apex stage number
+- `<kills>` - your kills this match
+- `<alive>` - players in the arena
+- `<ability>`, `<ability-hint>`, `<ability-cooldown>` - your current ability, its hint, and `Ready` or the seconds left
 
-### `@players:` expansion
+`<time>` renders as `m:ss`. Raw seconds are on `<seconds>`.
 
-Any line starting with `@players:` is expanded to one line per arena participant; the viewer's own line gets a `(you)` suffix. Per-player placeholders inside an `@players:` template: `<player-name>`, `<player-stage>`, `<player-stage-name>`, `<player-ability>`.
+### `@players:` rows
 
-Max ~14 lines per state after `@players:` expansion - beyond that, scoreboard slots run out.
+A line starting with `@players:` repeats once per player in the arena. Inside it you can use `<player-name>` (your own row gets ` (you)`), `<player-stage>`, `<player-stage-name>` and `<player-ability>`, plus TeaCore's row tags such as `<player-kills>`.
+
+Keep each phase at 15 lines or fewer after `@players:` expansion; a sidebar has no room for more.
+
+### Turning it off
+
+Set `enabled: false` here, turn off `features.games.ascend.sidebar` in TeaCore's `config.yml`, or let players hide it themselves with `/board`. See [Optional features](../../tea/user/features.md).
 
 ## Chat and stats
 
 Ascend uses TeaCore's chat router, so the kill feed and game messages stay inside the arena and don't leak across matches running on the same server.
 
-Per-match results are written to the `ascend_stats` table (`uuid`, `kills`, `deaths`, `evolves`, `games_played`, `games_won`). Schema is applied by TeaCore's migration runner on first boot from `V001__init.sql`. Query per-player totals with `/tea stats [player]`.
+Ascend keeps per-player totals (kills, deaths, evolves, games played, games won) in the `ascend_stats` table, which it creates on first start. Players see them with `/stats`, admins with `/stats <player>`. Ascend also adds `%tea_ascend_stage%` (current stage, counting from 1), `%tea_ascend_stage_index%` (counting from 0), `%tea_ascend_stage_max%` and `%tea_ascend_evolutions%`. You can read the totals through placeholders such as `%tea_ascend_games_won%`, and as leaderboards such as `%tea_top_ascend_games_won_1_name%`. TeaCore separately counts kills, deaths, assists, wins and losses across all Tea games. See [Placeholders](../../tea/user/placeholders.md) and [Kill credit](../../tea/user/kill-credit.md).

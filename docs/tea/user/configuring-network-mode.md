@@ -111,7 +111,7 @@ arena-pool:
 ### Running
 
 1. Install the `TeaCore` jar + every game jar on every server.
-2. On the lobby server, set `lobby.enabled: true` in `plugins/TeaCore/config.yml`. Leave it `false` (the default) on arena servers.
+2. On the lobby server, set `lobby.enabled: true` in `plugins/TeaCore/config.yml`. Leave it `false` (the default) on arena servers. If the lobby doesn't run a game's plugin, set that game's name and icon with [`game-display`](./lobby.md#game-display) so the game selector shows them.
 3. Start Redis + MySQL.
 4. Start all servers. Each one registers its hosted games in Redis.
 5. Set `network.eligible-matchmaker: true` on the lobby and `false` on every arena server. Only eligible servers compete for the matchmaker leader lock and run the cluster-wide pool manager. The lobby's `arena-pool.games` config is then the only sizing source for the fleet.
@@ -192,4 +192,5 @@ Neither command reconnects Redis or the DB pool — restart the server for those
 ## Also see
 
 - [Installing](./installing.md) — first-time setup for all three shapes.
+- [Lobby](./lobby.md): hotbar items, the game selector and game names on lobby servers.
 - [Arenas and pool internals](../dev/architecture.md) — how allocations + control commands work under the hood.

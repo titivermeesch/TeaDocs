@@ -1,5 +1,5 @@
 ---
-sidebar_position: 7
+sidebar_position: 6
 title: Permissions
 ---
 
@@ -22,9 +22,12 @@ The tables below list every node, what grants it by default, and which command(s
 | `tea.chat.use` | everyone | `/chat` — switch the active chat channel. Always allows the `match` and `team` channels. |
 | `tea.chat.staff` | op | Read and send messages on the staff channel (`/chat staff`). |
 | `tea.chat.global` | op | Send messages on the global channel (`/chat global`). Everyone can still receive global messages. |
-| `tea.kit` | everyone | `/kit` — open the kit picker, or select a kit by id. |
+| `tea.kit` | everyone | `/kit`: open the kit picker, or select a kit by id. Selecting a priced kit you don't own buys it first. |
 | `tea.stats` | everyone | `/tea stats` — view **your own** stats. Viewing another player's stats (`/tea stats <player>`) additionally requires `tea.admin`. |
-| `tea.lobby.play` | everyone | `/play <game> [map]` — queue for a game from the lobby. (`/leave` is gated by `tea.arena.play` above so it works on every server.) Only effective on servers where `lobby.enabled: true`. |
+| `tea.menu` | everyone | `/menu <id>`: open a menu by id for yourself. Also gates `/profile`. A menu file can require an extra permission with `permission:`. See [Menus](./menus.md#menu-command). |
+| `tea.menu.others` | op | `/menu <id> <player>`: open a menu for another online player. Also skips a menu file's `permission:` check. |
+| `tea.board` | everyone | `/board` (alias `/sidebar`): hide or show your own sidebar. See [Feature switches](./features.md#board). |
+| `tea.lobby.play` | everyone | `/play <game> [map]`: queue for a game from the lobby. `/play` with no arguments opens the [game selector](./lobby.md#game-selector). (`/leave` is gated by `tea.arena.play` above so it works on every server.) Only effective on servers where `lobby.enabled: true`. |
 | `tea.lobby.admin` | op | `/tea lobby` and all its subcommands — `sign bind\|unbind\|list`, `spawn set\|tp`, `config show\|manage-spawn\|gamemode`, and `reload`. Only effective on servers where `lobby.enabled: true`. |
 
 ## Common permission recipes
@@ -33,6 +36,7 @@ The tables below list every node, what grants it by default, and which command(s
 ```
 - tea.admin
 - tea.lobby.admin
+- tea.menu.others
 ```
 
 **Regular player rank (no-op defaults, explicit):**
@@ -41,6 +45,8 @@ The tables below list every node, what grants it by default, and which command(s
 - tea.chat.use
 - tea.kit
 - tea.stats
+- tea.board
+- tea.menu
 - tea.lobby.play
 ```
 

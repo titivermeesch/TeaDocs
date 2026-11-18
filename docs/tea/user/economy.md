@@ -1,5 +1,5 @@
 ---
-sidebar_position: 9
+sidebar_position: 13
 title: Economy
 ---
 
@@ -39,6 +39,8 @@ Games can attach a `cost` to their kits. A kit with `cost: 0` is free; a kit wit
 - **Priced kit they can afford** — normal icon, normal name, description + `Cost: 100 coins` line.
 - **Priced kit they already own** — normal icon, normal name, description + `Cost: 100 coins (owned)` in green.
 - **Priced kit they can't afford** — icon replaced with a red barrier, name prefixed `[LOCKED]`, description + `Cost: 100 coins (you have 30 coins)` in red. Clicking does nothing beyond a chat message.
+
+`/kit <game> <kit>` follows the same rules as a click on the kit in the picker. If the kit has a price and the player doesn't own it, TeaCore buys it first. If they can't pay, or no economy plugin is available, TeaCore doesn't select the kit.
 
 ### When a purchase fails
 

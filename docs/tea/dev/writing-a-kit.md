@@ -78,14 +78,16 @@ public interface KitRegistry {
 
 `selectedKit(Player, GameId)` returns the player's active kit, falling back to the first-registered kit for the game if none was explicitly chosen. Players change selection via `selectKit(Player, GameId, kitId)`.
 
-Players pick a kit at runtime through the TeaCore `KitSelectorGui`. Open it from your game plugin - typically from a waiting-area menu item:
+Players pick a kit at runtime through TeaCore's kit picker. To show it from your game plugin, for example from a waiting-area menu item, open the `kits` menu for your game:
 
 ```java
 // in your game plugin
-core.kits().kit(gameId, "runner").ifPresent(kit -> gui.open(player, gameId));
+if (!core.menus().open(player, "kits", Map.of("game", gameId.value()))) {
+    player.performCommand("kit " + gameId.value());   // menus turned off: built-in picker
+}
 ```
 
-There is no `/kit` chat command - selection always flows through the GUI so players see kit icons, descriptions, and their current choice visually.
+Players can also run `/kit <game>` (or `/kit` inside an arena) to open it, and `/kit <game> <kitId>` to select a kit without the menu. If the kit has a price and the player doesn't own it, TeaCore buys it first, with the same rules and messages as the menu. If they can't pay, TeaCore refuses the selection. The picker is the YAML menu `plugins/TeaCore/menus/kits.yml`, so admins can restyle it. When menus are turned off, `/kit` opens a built-in picker instead. See [Menus](../user/menus.md).
 
 ## Applying a kit on match start
 

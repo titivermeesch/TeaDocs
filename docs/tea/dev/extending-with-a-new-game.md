@@ -37,6 +37,7 @@ package com.example.mygame;
 
 import me.playbosswar.tea.core.api.TeaCoreAPI;
 import me.playbosswar.tea.core.api.game.*;
+import org.bukkit.Material;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.List;
@@ -52,6 +53,7 @@ public final class MyGamePlugin extends JavaPlugin {
 
         GameDefinition def = GameDefinition.builder(MY_GAME, this)
                 .displayNameKey("mygame.name")
+                .icon(Material.DIAMOND_SWORD)          // item in the game selector
                 .teamMode(TeamMode.FFA)
                 .lifecycle(new LifecycleConfig(
                         120,                    // maxWaitSeconds
@@ -84,6 +86,7 @@ Notes:
 
 - `GameDefinition` does **not** carry min/max player bounds - those live on each `MapDefinition`, so different maps for the same game can have different capacities.
 - `LifecycleConfig` accepts a 4-arg, 5-arg, or 7-arg form; the full 7-arg form above is recommended when you want control over the title threshold and chat announcement times. `LifecycleConfig.defaults()` returns `(120, 30, 5, 10, 0, 10, [30, 15])`.
+- `icon(Material)` sets the item that stands for your game in TeaCore's menus (the game selector and the game list under Kits in the profile). Without it, or with `null`, the icon is `PAPER`. Admins can override the icon and the name with `game-display.<id>` in TeaCore's config. A lobby that doesn't run your plugin gets them the same way. See [Game names and icons](../user/lobby.md#game-display).
 - A typical implementation reads most of these values from its own `config.yml` and passes them into the builder at enable time.
 
 ## 3. Write a controller
@@ -136,13 +139,23 @@ MyGameController controller = new MyGameController(this, core, MY_GAME);
 getServer().getPluginManager().registerEvents(controller, this);
 ```
 
-To declare a winner and trigger the ENDING transition, the controller calls:
+To declare the result and trigger the ENDING transition, the controller calls one of:
 
 ```java
-core.arenas().endMatch(arena.id(), winner.getUniqueId());
+core.arenas().endMatch(arena.id(), winner.getUniqueId());   // one winning player
+core.arenas().endMatch(arena.id(), null);                    // draw / no winner
+core.arenas().endMatchForTeam(arena.id(), winningTeam.id()); // a winning team
 ```
 
-Pass `null` for the winner UUID on draws. This fires `MatchEndEvent` and the lifecycle ticker takes it from there.
+Both fire `MatchEndEvent`, and the lifecycle ticker handles the rest. Pick the call by result type:
+
+| Your game | Call | Who gets a core win |
+| --- | --- | --- |
+| Free-for-all, one winner | `endMatch(id, uuid)` | That player |
+| Teams | `endMatchForTeam(id, teamId)` | Every member of that team still in the arena |
+| Draw, or nobody won | `endMatch(id, null)` or `endMatchForTeam(id, null)` | Nobody |
+
+When there is a winner, everyone else still in the arena gets a loss. A draw gives everyone still in the arena a game played, with no win or loss. With `endMatchForTeam`, `MatchEndEvent#winningTeam()` holds the team and `winner()` a representative member. Don't use `endMatch` with one team member for a team game: only that player would get the win.
 
 ## 4. Match timeouts
 
@@ -154,6 +167,7 @@ public void onTimeout(MatchTimedOutEvent event) {
     if (!event.arena().gameId().equals(gameId)) return;
     UUID winner = pickLeader(event.arena());
     core.arenas().endMatch(event.arena().id(), winner);
+    // team game: core.arenas().endMatchForTeam(event.arena().id(), leadingTeam(event.arena()));
 }
 ```
 
@@ -182,7 +196,7 @@ core.kits().registerKit(new Kit(
 ));
 ```
 
-Players pick kits through the TeaCore kit-selector GUI. Games open it themselves (typically from a waiting-area menu item that calls `KitSelectorGui.open(player, gameId)`). See [Writing a kit](./writing-a-kit.md) and [Writing an ability](./writing-an-ability.md) for the full API.
+Players pick kits through TeaCore's kit picker. Open it from your game (for example from a waiting-area item) by running `/kit <game>` for the player, or with `core.menus().open(player, "kits", Map.of("game", MY_GAME.value()))`. The picker is the YAML `kits` menu, which admins can restyle. When menus are turned off, TeaCore uses a built-in picker; see [Sidebars and menus](./sidebars-and-menus.md#opening-teacores-menus-from-your-game). See [Writing a kit](./writing-a-kit.md) and [Writing an ability](./writing-an-ability.md) for the full API.
 
 ### When to use your own dispatcher instead
 
@@ -190,9 +204,33 @@ If your abilities don't map cleanly onto "kit contains a list of bindings" - for
 
 Kits can still be part of the game as passive flavor. You can register kits with empty `AbilityBinding` lists and have the controller read the player's selected kit id and apply a passive perk.
 
-## 6. Scoreboard and chat
+## 6. Sidebar and chat
 
-For scoreboards, wire your own `org.bukkit.scoreboard.Scoreboard` per arena or per player and render lines through `MessageService#renderComponent(locale, key, placeholders)` so your translation keys and theme styles apply. A common pattern is to pull MiniMessage templates from your own `config.yml` under a `sidebar:` key and expand them per player, which lets admins retheme the scoreboard without a rebuild.
+Don't build your own Bukkit scoreboard. Ship a `sidebar:` layout in your config and register it; TeaCore renders it per player, picks the list for the arena phase, and respects the admin's feature switches and `/board`:
+
+```yaml
+# config.yml
+sidebar:
+  enabled: true
+  title: "<primary><bold>MyGame"
+  waiting: [ "<secondary>Players: <highlight><players>/<max-players>" ]
+  live:
+    - "<secondary>Time: <accent><time>"
+    - "<secondary>Score: <accent><score>"
+    - "@players: <player-name> <muted><player-kills>"
+```
+
+```java
+core.sidebars().registerGame(this, MY_GAME, getConfig().getConfigurationSection("sidebar"),
+        new SidebarData() {
+            @Override
+            public Map<String, String> placeholders(Player viewer, Arena arena) {
+                return Map.of("score", String.valueOf(controller.score(viewer.getUniqueId())));
+            }
+        });
+```
+
+Call `registerGame` again after your config reload, and `core.sidebars().unregisterGame(MY_GAME)` in `onDisable`. [Sidebars and menus](./sidebars-and-menus.md#sidebars) covers built-in tags, row columns and custom providers.
 
 For chat, never call `Bukkit.broadcast` - use `MatchBroadcaster`:
 
@@ -206,7 +244,55 @@ core.matchBroadcaster().actionBarToMatch(arena, "mygame.kill.feed",
 
 This keeps messages scoped to the arena so nothing leaks across matches running on the same server.
 
-## 7. Persistence and stats
+## 7. Menus
+
+Ship menus as YAML in your jar and register them; admins edit the copy in your data folder. Fill lists with a `MenuSource` and handle clicks with a `MenuAction`:
+
+```java
+core.menus().registerSource("mygame:shop", (viewer, args) -> shopEntries(viewer));
+core.menus().registerAction("mygame:buy", (click, itemId) -> {
+    shop.buy(click.player(), itemId);
+    click.refresh();
+});
+String shopId = core.menus().registerMenu(this, "menus/shop.yml");   // id "mygame:shop"
+
+// later, e.g. from an item click:
+core.menus().open(player, shopId, Map.of());
+```
+
+The menu id is `<your plugin name, lower case>:<file name>`. Name your plugin after your game id so `features.games.<id>.menus` applies to your menus. Full API and YAML format: [Sidebars and menus](./sidebars-and-menus.md#menus).
+
+## 8. Loot tables
+
+If your game fills chests, keep the table in your config and let TeaCore roll it:
+
+```java
+core.loot().registerItemProvider("mygame", (id, amount) -> myItems.create(id, amount));
+core.loot().registerTable(this, "mygame:chests", getConfig().getConfigurationSection("loot.chests"));
+
+core.loot().table("mygame:chests").ifPresent(table -> table.fill(chest.getBlockInventory()));
+```
+
+See [Loot tables](./loot-tables.md) for the YAML format, including legacy enchantment names.
+
+## 9. Reporting kills
+
+TeaCore resolves kill credit (killer + assists) and counts core kills, deaths and assists for you. Your part depends on how deaths work in your game:
+
+| Your game | What to do |
+| --- | --- |
+| Players really die (`PlayerDeathEvent`) | Nothing. TeaCore reports the death. |
+| You cancel the lethal damage and respawn the player | Call `core.combat().reportKill(arena, victim, event)` with the cancelled damage event. |
+| An ability deals damage without a player source (poison, pulls, `damage(amount)`) | Call `core.combat().recordHit(arena, victimUuid, attackerUuid)` so the attacker gets credit. |
+
+```java
+// Inside your lethal-damage handler, after event.setCancelled(true):
+core.combat().reportKill(arena, victim, event);
+```
+
+React to kills (kill feed, rewards, your own stats) with `ArenaKillEvent` instead of `PlayerDeathEvent`. Don't add core kills/deaths yourself. Details: [Combat and kill credit](./combat-and-kill-credit.md).
+
+## 10. Persistence and stats
 
 Register migrations in `onEnable`:
 
@@ -233,7 +319,44 @@ core.stats().register(new StatsProvider() {
 
 See [Persistence guide](./persistence-guide.md) for table conventions and dialect handling.
 
-## 8. Maps
+### Match history {#match-history}
+
+TeaCore records every finished match for you: game, map, server, duration, winner, and each player's team, kills, deaths, assists and result. You don't write anything. Read it with `core.matchHistory()`:
+
+```java
+public interface MatchHistoryService {
+    List<PlayerMatch> recentFor(UUID player, int limit);    // a player's matches, newest first
+    List<MatchRecord> recent(@Nullable GameId game, int limit);  // all matches; game narrows to one
+    List<PlayerMatch> participants(UUID matchId);           // every player line of one match
+
+    record MatchRecord(UUID matchId, String gameId, @Nullable String mapId, @Nullable String serverId,
+                       Instant endedAt, int durationSeconds, @Nullable String winnerTeam,
+                       @Nullable UUID winnerUuid) { }
+
+    record PlayerMatch(MatchRecord match, @Nullable String team, int kills, int deaths, int assists,
+                       String result) { }   // result: "win", "loss" or "draw"
+}
+```
+
+```java
+Bukkit.getScheduler().runTaskAsynchronously(this, () -> {
+    List<PlayerMatch> last = core.matchHistory().recentFor(player.getUniqueId(), 10);
+    long wins = last.stream().filter(m -> m.result().equals("win")).count();
+    // hop back to the main thread before touching the player
+});
+```
+
+- Every call queries the database. Call it off the main thread.
+- On a database error TeaCore logs a warning and returns an empty list.
+- `winnerTeam` and `winnerUuid` are both `null` for a draw. For a team result, `winnerUuid` is one member of the winning team.
+- `durationSeconds` is the length of the `LIVE` phase.
+- `participants` sorts by kills, highest first. Only players still in the arena at match end have a line.
+- TeaCore records at `MatchEndEvent`, so the result follows the call you made: `endMatch`, `endMatchForTeam`, or a draw with `null`.
+- Admins can stop recording with `features.match-history: false`. Reads still work and return what is stored.
+
+Admin-facing docs: [Match history](../user/match-history.md).
+
+## 11. Maps
 
 Use the admin commands in [Authoring a map](../user/adding-a-map.md). Maps are registered at runtime when TeaCore loads `plugins/TeaCore/maps/<gameId>.yml` on startup (or when an admin runs `/tea map reload`). Your plugin doesn't ship default maps unless you want to - a bare install has zero maps and admins author them in-game.
 
@@ -261,7 +384,7 @@ Admins now run `/tea map bosspad` while editing the draft to capture their curre
 
 For non-spawn data (entity types, block regions, config-shaped structs), implement `MapExtension<T>` directly. Core calls `handleCommand` when admins type `/tea map <subcommand>`, `toYaml`/`fromYaml` at save/load, and optionally `toRelative`/`toAbsolute` if your value carries coordinates that need to survive the edit-world-to-minCorner relocation. A game that needs two named spawn points (for example a viewer pad and a mob pad for a ceremony) can register two `SpawnPointExtension`s, each with its own key and subcommand.
 
-## 9. Translations
+## 12. Translations
 
 Each game plugin ships its own `lang/<locale>.yml` bundle and registers it on enable so players see localized strings:
 
@@ -271,9 +394,9 @@ core.messageService().registerBundles(this, List.of("en_US"));
 
 Prefix all keys with your game id (for example `mygame.match.won`, `mygame.stage.forest`) so they don't collide with TeaCore (`core.*`), TeaCore's lobby features (`lobby.*`), or other games. Ship whatever locales you want here - the list you pass is loaded from your jar's `lang/<locale>.yml` resources, and admins can override them with files in `plugins/<YourPlugin>/lang/`.
 
-## 10. Placeholders
+## 13. Placeholders {#placeholders}
 
-Once you register a stats schema (step 7), TeaCore automatically exposes every column as a PlaceholderAPI placeholder `%tea_<gameId>_<stat>%` - no extra work. To add placeholders that aren't stat columns (live match state, computed values), register a `PlaceholderResolver` under your game id:
+Once you register a stats schema (step 10), TeaCore exposes every column as a PlaceholderAPI placeholder `%tea_<gameId>_<stat>%` with no extra work. To add placeholders that aren't stat columns (live match state, computed values), register a `PlaceholderResolver` under your game id:
 
 ```java
 core.placeholders().register("mygame", (player, key) -> switch (key) {
@@ -286,7 +409,7 @@ core.placeholders().register("mygame", (player, key) -> switch (key) {
 
 These resolve as `%tea_mygame_stage%`, `%tea_mygame_kills_this_round%`, and so on. Return `null` for any key you don't own so other resolvers (and the auto stat columns) still get a chance. The resolver may receive a `null` or offline player, so guard accordingly. See the [placeholder reference](../user/placeholders.md) for everything TeaCore exposes out of the box.
 
-## 11. Putting it together
+## 14. Putting it together
 
 Your `onEnable` ends up roughly like this:
 
@@ -307,6 +430,11 @@ public void onEnable() {
 
     MyGameController controller = new MyGameController(this, core, MY_GAME);
     getServer().getPluginManager().registerEvents(controller, this);
+
+    core.sidebars().registerGame(this, MY_GAME,
+            getConfig().getConfigurationSection("sidebar"), new MySidebarData(controller));
+    core.menus().registerMenu(this, "menus/shop.yml");
+    core.loot().registerTable(this, "mygame:chests", getConfig().getConfigurationSection("loot.chests"));
 }
 ```
 

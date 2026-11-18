@@ -35,19 +35,19 @@ stages:
 
 ## Every field, explained
 
-Each entry is a record that maps onto `EvolutionStage` (`ascend/src/main/java/me/playbosswar/ascend/stage/EvolutionStage.java`). Defaults come from `EvolutionStages#parseSection`.
+Every field is optional. Leave a field out to use its default. A stage has no ability unless you set `ability`.
 
 | Field | Type | Default | Notes |
 | ----- | ---- | ------- | ----- |
 | `name-key` | string | `ascend.stage.<id>` | Translation key for the display name. Add the key to every `plugins/Ascend/lang/*.yml`. |
-| `ability` | string | none | Id of a registered `StageAbility`. Blank or missing = no ability on this stage. |
+| `ability` | string | none | One of the ability ids listed at the top of this page. Blank or missing = no ability on this stage. |
 | `mob-type` | EntityType name | none | Any Bukkit `EntityType` name. Invalid values log a warning and fall through to "no morph". |
 | `head-material` | Material name | none | Optional worn helmet rendered on the player. |
 | `combat-item` | Material name | `STICK` | Hotbar slot-0 flavor item. Damage is driven by `melee-damage`, not this item's vanilla damage. |
-| `info-icon` | Material name | `MobHeads.iconFor(mob-type)` | Slot-8 stage-info icon. |
+| `info-icon` | Material name | the mob's head | Slot-8 stage-info icon. |
 | `max-health` | double | `20.0` | Half-hearts. |
 | `melee-damage` | double | `3.0` | Half-hearts per punch. |
-| `walk-speed` | float | `0.22` | `Player.setWalkSpeed` value. `0.20` is the vanilla baseline. |
+| `walk-speed` | float | `0.22` | Walking speed. `0.20` is vanilla. |
 | `knockback-resistance` | double 0.0-1.0 | `0.0` | `1.0` = total immunity. Clamped to `[0, 1]`. |
 | `fall-damage-multiplier` | double 0.0-1.0 | `1.0` | `0` = immune, `0.5` = half, `1` = full. Clamped. |
 | `water-damage` | bool | `false` | Chip HP every tick while in water. |

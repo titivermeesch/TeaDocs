@@ -62,6 +62,12 @@ const config: Config = {
           label: 'Ascend',
         },
         {
+          type: 'docSidebar',
+          sidebarId: 'fireballSidebar',
+          position: 'left',
+          label: 'Fireball',
+        },
+        {
           href: 'https://github.com/titivermeesch/teacore',
           label: 'GitHub',
           position: 'right',
