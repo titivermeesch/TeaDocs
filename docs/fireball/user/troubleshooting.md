@@ -52,7 +52,7 @@ TeaCore's arenas are Peaceful by default, and Minecraft deals no explosion damag
 
 ## Big explosions never kill anyone
 
-Fireball does this on purpose. `game.max-explosion-damage` (default 12, 6 hearts) caps one explosion's damage so a single blast cannot kill a full-health player. Raise it, or set `0` for no cap.
+`game.max-explosion-damage` (default 12, 6 hearts) caps one explosion's damage so a single blast cannot kill a full-health player. Raise it, or set `0` for no cap.
 
 ## Right-clicking a fire charge does nothing
 
@@ -99,7 +99,7 @@ Players get their selected kit, or the first kit in `kits:` if they never picked
 
 ## "Missing translation: fireball.xxx"
 
-A text key is missing from your `lang/*.yml`. Fireball adds missing keys from the jar on startup, so a restart usually fixes it. If you added a kit or renamed a team key, add the matching key yourself (for example `fireball.kit.<id>.name` and `fireball.kit.<id>.desc`).
+A text key is missing from your `lang/*.yml`. Fireball adds missing keys from the jar on startup, so restart the server first. If you added a kit or renamed a team key, add the matching key yourself (for example `fireball.kit.<id>.name` and `fireball.kit.<id>.desc`).
 
 ## Config changes do nothing
 

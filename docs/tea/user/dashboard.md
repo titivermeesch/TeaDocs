@@ -5,75 +5,145 @@ title: Dashboard
 
 # Web dashboard
 
-TeaCore ships an embedded management dashboard: a React single-page app bundled inside the plugin jar and served over HTTP by the plugin itself. No external hosting, no separate process to deploy. From one URL you can see every arena, queue entry, online player, and registered game across your whole fleet, and drive control actions (start / release / allocate / end-match / reload maps / delete maps) from the browser.
+TeaCore serves a web dashboard from inside the plugin. It shows every arena, queue, player and finished match across your network, live, and lets staff act on them: end a match with a chosen winner, kick or move a player, release an arena, delete a map.
 
-## Enabling it
+## Turning it on
 
-The dashboard is **off by default**. Enable it on exactly one server in your fleet — usually the lobby — so you get a single network-wide view.
-
-Edit `plugins/TeaCore/config.yml`:
+The dashboard is off by default. Turn it on for one server only, usually the lobby. On a network it reads every server's state through Redis, so one dashboard covers them all.
 
 ```yaml
+# plugins/TeaCore/config.yml
 dashboard:
   enabled: true
-  bind-address: "0.0.0.0"   # "127.0.0.1" to limit to localhost + reverse proxy
+  bind-address: "0.0.0.0"   # "127.0.0.1" if a reverse proxy sits in front
   port: 8080
-  admin-token: ""           # leave blank; TeaCore fills in a random token on first boot
+  public-url: "https://dash.example.com"
+  admin-token: ""
 ```
 
-Restart the server. On first boot TeaCore generates a random `admin-token`, writes it back to `config.yml`, and logs the value once at INFO. Grab it with:
+| Key | Meaning |
+| --- | --- |
+| `enabled` | Starts the dashboard on this server. Restart to apply. |
+| `bind-address`, `port` | Where it listens. One port carries the pages, the API and the live feed. |
+| `public-url` | The address people open the dashboard at. TeaCore puts it in the login link players get in game. Set it on **every** server, since players can run `/dashboard` from any of them. Without it, players get a code to type instead of a link. |
+| `admin-token` | A break-glass login with every permission, and the Bearer token for scripts. TeaCore fills in a random one on first boot. Set it to `off` to turn token login off. |
 
-```bash
-grep admin-token plugins/TeaCore/config.yml
+## Signing in
+
+1. In game, run `/dashboard` (or `/tea dashboard login`).
+2. Click the link in chat. If `public-url` is not set, open the dashboard and type the code from chat (for example `K7QP-M3XD`).
+
+The code works once and expires after 2 minutes. You are signed in as your Minecraft account, and the dashboard shows your name. A session lasts 12 hours. Restarting the server that runs the dashboard signs everyone out.
+
+When TeaCore makes the code, it records which dashboard permissions you have at that moment. Changes to your permissions apply from your next sign-in. To cut someone off sooner, sign their session out on the Sessions page (see [Pages](#pages)).
+
+The login page also has **Use the admin token instead**, for when nobody can join the server.
+
+Scripts can call the API with `Authorization: Bearer <admin-token>`.
+
+## Permissions
+
+Each dashboard action has its own permission, so you choose what each staff rank can do. Players need `tea.dashboard.view` to sign in.
+
+| Permission | Allows |
+| --- | --- |
+| `tea.dashboard.view` | Signing in and seeing arenas, queues, games, players, the live arena view and match history. |
+| `tea.dashboard.chat` | Seeing match chat in the live arena view. |
+| `tea.dashboard.history.export` | Downloading match history as CSV. |
+| `tea.dashboard.queue.remove` | Removing a player from a queue. |
+| `tea.dashboard.player.kick` | Kicking a player out of an arena. |
+| `tea.dashboard.player.move` | Moving a player to another arena. |
+| `tea.dashboard.player.spectator` | Making a player a spectator. |
+| `tea.dashboard.arena.allocate` | Allocating arenas. |
+| `tea.dashboard.arena.start` | Skipping an arena to its next phase. |
+| `tea.dashboard.arena.end` | Ending a match, with a winner or as a draw. |
+| `tea.dashboard.arena.release` | Releasing arenas. |
+| `tea.dashboard.maps.reload` | Reloading maps on every server. |
+| `tea.dashboard.maps.delete` | Deleting maps. |
+| `tea.dashboard.maps.restore` | Restoring an older version of a map. |
+| `tea.dashboard.sessions` | Seeing who is signed in and signing them out. |
+| `tea.dashboard.maps.transfer` | Downloading and uploading maps. |
+| `tea.dashboard.settings` | Changing settings on the Settings page. See [Changing settings](./settings.md). |
+
+Three bundles grant common sets:
+
+| Bundle | Contains |
+| --- | --- |
+| `tea.dashboard.viewer` | `view`, `history.export` |
+| `tea.dashboard.moderator` | the viewer bundle plus `chat`, `queue.remove` and the three `player.*` permissions |
+| `tea.dashboard.admin` | everything (ops have it, and `tea.admin` includes it) |
+
+Every `tea.dashboard.*` node defaults to op, apart from `viewer` and `moderator`, which nobody gets by default. Grant them with your permissions plugin, for example `lp group mod permission set tea.dashboard.moderator`. The dashboard hides buttons you don't have permission for, and the server refuses those actions anyway.
+
+TeaCore writes every action to the console with the account that did it, for example `[dashboard] Notch: end match in arena 63dfe98c-... (winner team red)`.
+
+## Pages
+
+**Overview.** Counts of games, arenas, players and queued players, the arena list, and the latest kills across the network.
+
+![Dashboard overview](/img/dashboard-overview.png)
+
+**Arenas.** Every arena on every server with its state, players and phase timer. Click one to open its live view.
+
+**Live arena view.** For one arena, updated every 2 seconds:
+
+- Teams with their total kills, deaths and assists.
+- Every player with their kills, deaths and assists this match. Buttons to make them a spectator, move them to another arena or kick them.
+- The arena's in-game sidebar, as one of its players sees it, in its colours. Game-specific lines (Fireball coins, Ascend stages) show up without any dashboard setup.
+- The kill feed: who killed whom, with assists and the cause.
+- Match chat, for accounts with `tea.dashboard.chat`. Everything players type in a match is visible to those accounts, so grant it with care.
+- **End match** (pick the winning team, or the winning player in games without teams, or a draw), **Skip phase** and **Release**.
+
+![The live view of a match](/img/dashboard-arenas.png)
+
+**Queues.** Who is waiting for which game, with a button to remove them.
+
+**Activity.** Charts of players online, players queued and matches running over the last 24 hours, 7 days or 30 days, and matches per day by game. The server running the dashboard records a sample every minute and keeps 35 days.
+
+![The Activity page](/img/dashboard-activity.png)
+
+**Servers.** Every server with its group, version, players, TPS and memory, which games it hosts and how it picks maps, and the arenas open on it. A server that stops reporting turns grey.
+
+![The Servers page](/img/dashboard-servers.png)
+
+**Games.** Every game with its pool and lifecycle settings and its maps. Reload or delete maps here, download one or all of them as a zip, or upload a zip (see [Arena servers](./hosting.md#downloading-and-uploading-maps)). The clock button next to a map lists its [older versions](./adding-a-map.md#map-versions) and restores one.
+
+**Players.** Online players, and any player's profile by uuid: first and last seen, stats per game, their recent matches and their current win or loss streak.
+
+![A player's profile](/img/dashboard-players.png)
+
+**History.** Finished matches, newest first. Filter by game, map, player (name or uuid) and date range. Click a match for every player's team, result and kills, deaths and assists. **Export CSV** downloads the filtered list with one row per player per match, up to 10,000 matches.
+
+![Match history](/img/dashboard-history.png)
+
+**Settings.** TeaCore, quest, game and cosmetic settings as forms, saved to every server that has them or to one group of servers, with a history of changes you can undo. Needs `tea.dashboard.settings`. See [Changing settings](./settings.md).
+
+![The Settings page](/img/dashboard-settings.png)
+
+**Sessions.** Who is signed in, from where and until when. Sign any session out. Needs `tea.dashboard.sessions`.
+
+## Match history retention
+
+TeaCore deletes matches older than `match-history.keep-days` (default 90) once a day. Set it to `0` to keep everything. Restart to apply.
+
+```yaml
+match-history:
+  keep-days: 90
 ```
 
-Then browse to `http://<host>:<port>/` (default `http://localhost:8080/`), paste the token when prompted, and you're in.
+Matches recorded before this version have no player names, so the player filter only finds them by uuid.
 
-## What's on it
+## Networks
 
-**Arenas panel.** One row per running arena across every server. Columns: arena id (short), game, map, state, server, roster count, uptime. Filter by state or game. Click a row to expand the full roster with player names, UUIDs, and their current team assignment. Action buttons per row — **Force start**, **Release**, **End match** — do exactly what their `/tea arena` equivalents do, just via the dashboard.
+On a network (`central` or `external` mode) the dashboard reads every server's arenas from Redis, and its actions run on the server that owns the arena. The kill feed, chat and sidebar travel the same way. Every server must reach the same Redis and the same database: login codes are stored in the database, so a player on any server can sign in to the dashboard on the lobby.
 
-**Queue panel.** Players currently in the matchmaker queue, per game. Position, time waited, preferred map (if any).
+## Security
 
-**Games panel.** Every game registered with TeaCore, pool configuration, number of arenas live / warm / allocating.
+- Put the dashboard behind HTTPS on any public network. Bind it to `127.0.0.1` and let a reverse proxy (nginx, Caddy) handle TLS. The session cookie is marked `Secure` when the proxy sends `X-Forwarded-Proto: https`.
+- The session cookie is `HttpOnly` and `SameSite=Strict`, so page scripts can't read it and other sites can't use it.
+- After 30 failed sign-ins from one address in a minute, TeaCore refuses more until the minute is over. Successful sign-ins never count.
+- Treat the admin token like a password, or set `admin-token: off` once your staff sign in with `/dashboard`.
 
-**Maps panel.** Every map per game, with a **Delete** action. Reload maps from disk without restarting the plugin.
+## Endpoints
 
-**Allocate button.** Global. Pick a game and an optional map; the matchmaker leader picks a server and spins up a fresh arena.
-
-**Reload button.** Global. Runs `/tea reload` on the server hosting the dashboard (config + theme + locale bundles).
-
-Updates stream live over WebSocket — no manual refresh needed. Arenas changing state, players joining/leaving, and queue entries appearing all show up within a tick or two.
-
-## Cross-server dashboards
-
-In `standalone` mode the dashboard sees only the server it's running on, because there are no other servers.
-
-In `central` or `external` mode the dashboard reads fleet-wide state from Redis and issues control actions (allocate, release, end-match, delete-map, reload) back through Redis so the owning server can execute them. This means:
-
-- You only ever need to enable the dashboard on **one** server. Pick the lobby.
-- Redis must be reachable from the dashboard host with the same credentials as every other TeaCore instance in the fleet.
-- Actions taken in the dashboard are the same as running the `/tea …` command on the owning server — the same permission logic applies at the server side, just bypassed client-side by the admin token.
-
-## Authentication
-
-Every API endpoint and every WebSocket message requires the `admin-token`. There is only one token. There are no player-facing endpoints, no user accounts, no sessions with expiry — the token is the whole auth story.
-
-Consequences:
-- **Treat the token like a password.** Anyone with it can end matches and delete maps across your whole fleet.
-- Rotate it by editing `admin-token` in `config.yml` and restarting the server hosting the dashboard. Blank it out and TeaCore will generate a new random one on next boot.
-- Bind to `127.0.0.1` + a reverse proxy (nginx, Caddy) with your own TLS + IP allow-list if you're exposing the dashboard on a public network.
-- The token is not sent in URL query strings; it's passed in an `Authorization: Bearer` header and in the WebSocket connect handshake.
-
-## Not gated by Bukkit permissions
-
-Dashboard actions do not go through the `tea.admin` / `tea.arena.admin` permission system. They are authenticated purely by the admin token. If you want some staff members to be able to see live matches but not end them, run a second reverse-proxy that strips write-method requests — the dashboard plugin itself does not currently offer granular dashboard-side roles.
-
-## Default ports and endpoints
-
-- HTTP: configured `port`, default `8080`.
-- WebSocket: same port, path `/ws`.
-- REST endpoints live under `/api/`.
-- Static SPA assets live under `/` (the bundled React app).
-
-Open only the configured port, not a range — all traffic multiplexes through one port.
+Everything goes through the one port: the web app at `/`, the REST API under `/api/`, and the live event feed at `/api/events` (WebSocket).

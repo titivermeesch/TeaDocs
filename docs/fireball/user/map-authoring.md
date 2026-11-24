@@ -17,8 +17,20 @@ On top of the core fields, a Fireball map has:
 | Chest | `/tea map chest` | No | A chest that Fireball fills with loot at match start. |
 | Cannon | `/tea map cannon` | No | A block players right-click to fire a cannon. |
 | Power-up point | `/tea map powerup` | No | A spot where power-up fireballs drop. |
+| Shopkeeper | `/tea map shop` | No | Where a shop villager stands. Without any, each team gets one 3 blocks from its spawn. |
 
 All markers appear in `/tea map status` and in the setup sidebar. `/tea map save` refuses to save until every team spawn is set.
+
+## With the editor tools
+
+Everything on this page also works with TeaCore's [editor tools](../../tea/user/adding-a-map.md#editor-tools). Sneak and scroll with the point tool to pick `chest`, `cannon`, `powerup` or a `team-spawn-<i>`, then right-click:
+
+| Point type | Right-click a block marks |
+| --- | --- |
+| `chest`, `cannon` | The clicked block itself. Click the chest or the cannon block. |
+| `powerup`, `team-spawn-<i>` | The space on top of the clicked block. |
+
+Each type has its own marker colour: team spawns in the team's colour, chests brown, cannons grey, power-ups purple. Left-click a marker with the point tool to remove that point.
 
 ## Team spawns
 
@@ -55,7 +67,7 @@ The marked block must be a chest when the match starts. Fireball skips any other
 - Stand on top of the chest and run `/tea map chest`. A chest is shorter than a full block, so you are standing "in" the chest's block.
 - Stand where the chest will go, run `/tea map chest`, step aside and place the chest there.
 
-Fireball empties and refills chests from the [`loot:`](./configuration.md#loot---chest-loot) table each match.
+Fireball empties and refills chests from the [`loot:`](./configuration.md#loot-chest-loot) table each match.
 
 ### Cannons
 
@@ -121,7 +133,7 @@ Use at least 2 for `min`. With fewer, a match can start with only one team in it
 
 ## Map file
 
-`/tea map save` writes the map to `plugins/TeaCore/maps/fireball.yml` and the build to `plugins/TeaCore/maps/schems/<mapId>.schem`. Fireball stores its markers under `extensions:`. Coordinates are relative to the map's lowest corner.
+`/tea map save` writes the map to `plugins/TeaCore/maps/fireball.yml` and the build to `plugins/TeaCore/maps/schems/<mapId>.schem` (`.schematic` on 1.8 to 1.12). Fireball stores its markers under `extensions:`. Coordinates are relative to the map's lowest corner.
 
 ```yaml
 maps:
@@ -162,4 +174,4 @@ maps:
           - { id: "fireball:powerups-0", x: 32.5, y: 5, z: 32.5, yaw: 0.0, pitch: 0.0 }
 ```
 
-You can hand-edit this file and run `/tea map reload`. Keep the `.schem` file and the YAML entry together when you copy a map to another server.
+You can hand-edit this file and run `/tea map reload`. Keep the schematic file and the YAML entry together when you copy a map to another server. A `.schematic` map works on every version; a `.schem` map only on 1.13 and newer.

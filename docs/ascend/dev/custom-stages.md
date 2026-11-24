@@ -5,14 +5,14 @@ title: Authoring a new stage
 
 # Authoring a new stage
 
-Adding a stage to Ascend is a config-only change. This page walks through every field in an Ascend stage entry and calls out what you need to add alongside the config. The 14 abilities that ship with Ascend (`ground_pound`, `flamethrower`, `web`, `sulphur_bomb`, `slime_slam`, `egg_blaster`, `blink`, `leap_rip`, `crossbow_volley`, `soul_slash`, `molten_bounce`, `fireball`, `sonic_boom`, `dive_bomb`) cover most evolution-game shapes, and any new stage you add can pick from any of them.
+You add a stage to Ascend by editing config; no code is needed. This page lists every field in a stage entry and what you need to add next to the config. The abilities that ship with Ascend (`ground_pound`, `flamethrower`, `web`, `sulphur_bomb`, `slime_slam`, `egg_blaster`, `blink`, `leap_rip`, `crossbow_volley`, `soul_slash`, `molten_bounce`, `fireball`, `sonic_boom`, `dive_bomb`) are all available to any new stage.
 
 ## Where stages live
 
 `plugins/Ascend/config.yml`. The ladder is split into two pieces:
 
-- `stage-order:` - a flat array of stage ids that defines who's next to whom on the ladder. Last id is the apex.
-- `stages:` - a map of `<id>: { stats... }` per stage. Order in this map doesn't matter; stage-order owns the ladder.
+- `stage-order:`: a flat array of stage ids that sets the order of the ladder. The last id is the apex.
+- `stages:`: a map of `<id>: { stats... }` per stage. Order in this map doesn't matter; `stage-order` sets the ladder.
 
 ```yaml
 stage-order:
@@ -35,15 +35,15 @@ stages:
 
 ## Every field, explained
 
-Every field is optional. Leave a field out to use its default. A stage has no ability unless you set `ability`.
+All fields are optional. Leave a field out to use its default. A stage has no ability unless you set `ability`.
 
 | Field | Type | Default | Notes |
 | ----- | ---- | ------- | ----- |
 | `name-key` | string | `ascend.stage.<id>` | Translation key for the display name. Add the key to every `plugins/Ascend/lang/*.yml`. |
 | `ability` | string | none | One of the ability ids listed at the top of this page. Blank or missing = no ability on this stage. |
 | `mob-type` | EntityType name | none | Any Bukkit `EntityType` name. Invalid values log a warning and fall through to "no morph". |
-| `head-material` | Material name | none | Optional worn helmet rendered on the player. |
-| `combat-item` | Material name | `STICK` | Hotbar slot-0 flavor item. Damage is driven by `melee-damage`, not this item's vanilla damage. |
+| `head-material` | Material name | none | Optional helmet shown on the player. |
+| `combat-item` | Material name | `STICK` | Hotbar slot-0 flavor item. `melee-damage` sets the damage, not this item's vanilla damage. |
 | `info-icon` | Material name | the mob's head | Slot-8 stage-info icon. |
 | `max-health` | double | `20.0` | Half-hearts. |
 | `melee-damage` | double | `3.0` | Half-hearts per punch. |
@@ -57,7 +57,7 @@ Every field is optional. Leave a field out to use its default. A stage has no ab
 
 ## Example: adding Wither Skeleton to the ladder
 
-The `wither_skeleton` stage ships defined under `stages:` but isn't in the default `stage-order`. To slot it in between Blaze and Spider:
+The `wither_skeleton` stage ships under `stages:` but is not in the default `stage-order`. To put it between Blaze and Spider:
 
 ```yaml
 stage-order:
@@ -70,11 +70,11 @@ stage-order:
   - chicken
 ```
 
-Then `/tea reload` and the next match will use the updated ladder.
+Then run `/tea reload`. The next match uses the updated ladder.
 
 ## Example: a brand new stage
 
-Say you want to add a "Vex" stage:
+To add a "Vex" stage:
 
 1. Add the entry to `stages:`:
    ```yaml
@@ -90,7 +90,7 @@ Say you want to add a "Vex" stage:
        fall-damage-multiplier: 0.0
    ```
 
-2. Slot the id into `stage-order` where you want it on the ladder:
+2. Put the id into `stage-order` where you want it on the ladder:
    ```yaml
    stage-order:
      - iron_golem
@@ -111,8 +111,8 @@ Say you want to add a "Vex" stage:
 
 ## Things to watch for
 
-- **`stage-order` is the only source of order.** Stages defined under `stages:` but absent from `stage-order` are ignored entirely. Disabling a stage = removing it from `stage-order`.
-- **Missing translation key.** If you forget to add `ascend.stage.<id>` to your lang bundle, the scoreboard and chat will show the raw key string.
-- **Unknown mob type.** Ascend accepts any `EntityType` name but warns if the value is unrecognized. The stage still loads without a morph - players will look like themselves.
+- **`stage-order` is the only source of order.** Ascend ignores stages defined under `stages:` but missing from `stage-order`. To disable a stage, remove it from `stage-order`.
+- **Missing translation key.** If you leave `ascend.stage.<id>` out of your lang bundle, the scoreboard and chat show the raw key string.
+- **Unknown mob type.** Ascend accepts any `EntityType` name but warns if the value is unrecognized. The stage still loads without a morph, and players look like themselves.
 - **Empty stage-order.** If `stage-order` is missing or empty, Ascend falls back to the bundled 6-stage default ladder and logs a warning.
 

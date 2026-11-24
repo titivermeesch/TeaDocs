@@ -5,13 +5,13 @@ title: Architecture
 
 # Architecture
 
-Tea is one Spigot plugin built with Gradle (Kotlin DSL) and shaded into a fat jar. It compiles against the Spigot API from version 1.20.5 onward (the first Minecraft version to require Java 21):
+Tea is one Paper (or Spigot) plugin built with Gradle (Kotlin DSL) and shaded into a fat jar. It runs from 1.8.8 to the latest release: shared code compiles against both the 1.8.8 and the modern API, and version-specific code lives in two platforms picked at startup (see [Supporting every version](./platform.md)):
 
-- **TeaCore** - the engine. All shared infrastructure, plus the hub-side lobby UI (`/play`, `/leave`, connection signs, lobby spawn / gamemode management) gated by `lobby.enabled` in `plugins/TeaCore/config.yml`.
+- **TeaCore**: the engine. It holds the shared infrastructure, plus the hub-side lobby UI (`/play`, `/leave`, connection signs, lobby spawn / gamemode management) gated by `lobby.enabled` in `plugins/TeaCore/config.yml`.
 
 Games are separate plugin jars that declare `depend: [TeaCore]` and consume the TeaCore API.
 
-Tea targets Java 21 and the plain Spigot API. No NMS, no Paper-only APIs - so the same jars run on Spigot, Paper, Purpur, and any Paper-based fork.
+Tea compiles for Java 17 and uses the plain Spigot API, with no Paper-only APIs. The legacy platform (1.8 to 1.12) uses a little reflection into server internals for item NBT, entity NBT and sourced explosions; nothing else does.
 
 ## TeaCore subsystems
 
@@ -38,15 +38,15 @@ Every subsystem is exposed via `TeaCoreAPI.get().<accessor>()`:
 
 Utility helpers:
 
-- `TeaCoreAPI#serverId()` - the server's id from `network.server-id` (or `$TEA_SERVER_ID`).
-- `TeaCoreAPI#isStandalone()` - `true` when `network.mode: standalone`.
-- `TeaCoreAPI#lobbyServerName()` - proxy-side name of the hub server.
+- `TeaCoreAPI#serverId()`: the server's id from `network.server-id` (or `$TEA_SERVER_ID`).
+- `TeaCoreAPI#isStandalone()`: `true` when `network.mode: standalone`.
+- `TeaCoreAPI#lobbyServerName()`: proxy-side name of the hub server.
 
 ## Package boundary
 
 Classes live under `me.playbosswar.tea.core.api.*` (public surface that game plugins may depend on) and `me.playbosswar.tea.core.impl.*` (internals). An ArchUnit test inside the `core` Gradle module fails the build if any class outside `core` imports from `impl`.
 
-Games must only import from `core.api.*`.
+Games import only from `core.api.*`.
 
 ## Arena lifecycle
 
@@ -56,42 +56,42 @@ ALLOCATING -> WAITING -> COUNTDOWN -> STARTING -> LIVE -> ENDING -> RESETTING ->
 
 Each transition fires an `ArenaStateChangeEvent`. Games listen for these to initialize players (STARTING/LIVE), clean up (ENDING/RESETTING), etc.
 
-- **ALLOCATING**: a void world is created for the arena, and if the chosen map has a schematic it's pasted at `(0, 64, 0)`. Map is picked at this moment (not at countdown) from either a fixed map id or the game's `MapSelectionPolicy` (`random` or `fixed`).
-- **WAITING**: arena is accepting players. Transitions to COUNTDOWN when `arena.players().size() >= map.minPlayers()`.
-- **COUNTDOWN**: ticks down from `lifecycle.countdownSeconds`. If the player count drops back below min-players, returns to WAITING. Below `titleCountdownThreshold` a big title overlay + pling kicks in; above it, `chatAnnounceAtSeconds` posts chat announcements.
+- **ALLOCATING**: TeaCore creates a void world for the arena and, if the chosen map has a schematic, pastes it at `(0, 64, 0)`. TeaCore picks the map at this point (before the countdown) from either a fixed map id or the game's `MapSelectionPolicy` (`random` or `fixed`).
+- **WAITING**: the arena accepts players. Transitions to COUNTDOWN when `arena.players().size() >= map.minPlayers()`.
+- **COUNTDOWN**: ticks down from `lifecycle.countdownSeconds`. If the player count drops back below min-players, returns to WAITING. Below `titleCountdownThreshold` players see a big title overlay and hear a pling; above it, `chatAnnounceAtSeconds` posts chat announcements.
 - **STARTING**: brief freeze for teleport + kit application.
 - **LIVE**: gameplay. If `LifecycleConfig.maxMatchSeconds` is non-zero and reached, a `MatchTimedOutEvent` fires and the owning game decides the winner.
-- **ENDING**: winner announced, display period, then RESETTING. `MatchEndEvent` fires when the game calls `ArenaManager#endMatch`.
-- **RESETTING**: world unloaded and deleted. If `EndMode.SHUTDOWN`, the JVM exits (k8s respawns a fresh pod).
+- **ENDING**: TeaCore announces the winner, holds a display period, then moves to RESETTING. `MatchEndEvent` fires when the game calls `ArenaManager#endMatch`.
+- **RESETTING**: TeaCore unloads and deletes the world. If `EndMode.SHUTDOWN`, the JVM exits (k8s respawns a fresh pod).
 
 Admins can force-collapse the current WAITING/COUNTDOWN timer with `/tea arena start <arenaId>`, which calls `ArenaManager#forceStart(ArenaId)`.
 
 ## Coordination
 
-In `standalone` mode, `CoordinationBackend` is an `InMemoryBackend` - everything stays in one JVM. In `bungeecord`/`multi-server` modes, `RedisBackend` (Lettuce) replaces it. Same interface, same semantics. Arena heartbeats are refreshed every 2s with a 10s TTL; matchmakers run on leader-elected lobbies (SETNX on `tea:matchmaker:leader`, 10s TTL, refreshed every tick).
+In `standalone` mode, `CoordinationBackend` is an `InMemoryBackend`, and all state stays in one JVM. In `bungeecord`/`multi-server` modes, `RedisBackend` (Lettuce) replaces it with the same interface and semantics. Arena servers refresh heartbeats every 2s with a 10s TTL; matchmakers run on leader-elected lobbies (SETNX on `tea:matchmaker:leader`, 10s TTL, refreshed every tick).
 
 ## Transport
 
-Cross-server player moves happen via the legacy `BungeeCord` plugin-message channel. Both BungeeCord and Velocity honor this channel, so no proxy plugin is required.
+TeaCore moves players between servers over the legacy `BungeeCord` plugin-message channel. BungeeCord and Velocity both honor this channel, so you don't need a proxy plugin.
 
 ## Persistence
 
-`TeaCore` owns three tables: `tea_schema_versions` (the migration bookkeeping table), `tea_player_profile` (shared player profile), and `tea_lobby_signs` (connection-sign bindings, created by TeaCore's V003 migration). Every dependent plugin registers its own migrations at enable time - TeaCore's migration runner picks them up, applies anything new, and records the version in `tea_schema_versions(plugin_name, version)`. See [Persistence guide](./persistence-guide.md).
+`TeaCore` owns three tables: `tea_schema_versions` (the migration bookkeeping table), `tea_player_profile` (shared player profile), and `tea_lobby_signs` (connection-sign bindings, created by TeaCore's V003 migration). Every dependent plugin registers its own migrations at enable time. TeaCore's migration runner picks them up, applies anything new, and records the version in `tea_schema_versions(plugin_name, version)`. See [Persistence guide](./persistence-guide.md).
 
-Both `sqlite-jdbc` and `mysql-connector-j` stay unrelocated inside the shadow jar so their native libraries and service metadata continue to load correctly.
+Both `sqlite-jdbc` and `mysql-connector-j` stay unrelocated inside the shadow jar so their native libraries and service metadata still load.
 
 ## Theme and i18n
 
-Theme values are MiniMessage styling tags. They're compiled into a `TagResolver` so translation keys can write `<primary>Hello</primary>` and have the close tag pop back to the parent scope. The MessageService renders these to Adventure `Component`s for normal chat, and can also emit legacy section-code strings for contexts that need them (scoreboards, sign lines, titles).
+Theme values are MiniMessage styling tags. TeaCore compiles them into a `TagResolver` so translation keys can write `<primary>Hello</primary>` and have the close tag pop back to the parent scope. The MessageService renders these to Adventure `Component`s for normal chat, and can also emit legacy section-code strings for contexts that need them (scoreboards, sign lines, titles).
 
-Each plugin bundles `lang/<locale>.yml` resources inside its jar. On enable, it writes any jar-bundled keys that are missing from the on-disk file back into the file - preserving admin customizations while still shipping new keys automatically.
+Each plugin bundles `lang/<locale>.yml` resources inside its jar. On enable, it writes any jar-bundled keys that are missing from the on-disk file back into the file. Admin customizations stay, and new keys appear on their own.
 
 ## Games layered on top
 
 A game plugin takes TeaCore's building blocks and layers its own mechanics on top. Typical ingredients for a new game:
 
 - A `GameDefinition` registered in `onEnable`.
-- A controller class listening for `ArenaStateChangeEvent`, `ArenaPlayerJoinEvent`, etc., plus any Bukkit events the game cares about (damage, interact, chat).
+- A controller class listening for `ArenaStateChangeEvent`, `ArenaPlayerJoinEvent` and similar, plus any Bukkit events the game needs (damage, interact, chat).
 - Optional kits registered via `KitRegistry`; optional abilities via `KitRegistry.registerAbility` or via the game's own per-situation dispatcher.
 - A migration set + `StatsProvider` for per-game persistence.
 - A per-match scoreboard wired through `MessageService` / `MatchBroadcaster`.

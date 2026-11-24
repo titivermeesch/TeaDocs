@@ -3,7 +3,7 @@ import type {Config} from '@docusaurus/types';
 import type * as Preset from '@docusaurus/preset-classic';
 
 const config: Config = {
-  title: 'Tea Minigames',
+  title: 'Tea',
   tagline: 'A reusable Spigot minigames engine',
   favicon: 'img/favicon.ico',
 
@@ -47,13 +47,13 @@ const config: Config = {
       respectPrefersColorScheme: true,
     },
     navbar: {
-      title: 'Tea Minigames',
+      title: 'Tea',
       items: [
         {
           type: 'docSidebar',
           sidebarId: 'teaSidebar',
           position: 'left',
-          label: 'Tea engine',
+          label: 'Engine',
         },
         {
           type: 'docSidebar',
@@ -68,6 +68,18 @@ const config: Config = {
           label: 'Fireball',
         },
         {
+          type: 'docSidebar',
+          sidebarId: 'overchargeSidebar',
+          position: 'left',
+          label: 'Overcharge',
+        },
+        {
+          type: 'docSidebar',
+          sidebarId: 'cosmeticsSidebar',
+          position: 'left',
+          label: 'TeaCosmetics',
+        },
+        {
           href: 'https://github.com/titivermeesch/teacore',
           label: 'GitHub',
           position: 'right',
@@ -76,7 +88,7 @@ const config: Config = {
     },
     footer: {
       style: 'dark',
-      copyright: 'Tea Minigames - MIT License',
+      copyright: 'Tea - MIT License',
     },
     prism: {
       theme: prismThemes.github,

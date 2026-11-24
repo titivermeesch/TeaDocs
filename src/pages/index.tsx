@@ -7,21 +7,21 @@ const deploymentModes = [
     {
         title: 'Single server',
         subtitle: 'One Paper (or Spigot) server hosts lobby + games',
-        body: 'Arenas live on the same server players connect to. Pool manager scales locally. Simplest to run; perfect for small communities.',
+        body: 'Arenas live on the same server players connect to, and the pool manager scales them locally. It is the easiest setup to run and suits small communities.',
         config: 'arena-pool.mode: standalone',
         href: '/docs/tea/user/configuring-network-mode#standalone',
     },
     {
         title: 'Lobby + shared arena servers',
         subtitle: 'Many arenas per server, leader-coordinated',
-        body: 'A proxy (BungeeCord or Velocity) sends players onto a lobby; arenas spread across arena servers. The matchmaker leader balances new allocations across available servers via Redis.',
+        body: 'A proxy (BungeeCord or Velocity) sends players to a lobby, and arenas spread across arena servers. The matchmaker leader uses Redis to place new arenas on the least-loaded server.',
         config: 'arena-pool.mode: central',
         href: '/docs/tea/user/configuring-network-mode#central',
     },
     {
         title: 'One game per pod',
         subtitle: 'External orchestrator handles scaling',
-        body: 'Kubernetes (or similar) boots a fresh pod per match. TeaCore does not scale; each pod hosts one arena and shuts down on match end.',
+        body: 'Kubernetes (or a similar orchestrator) boots a fresh pod per match. TeaCore does no scaling: each pod hosts one arena and shuts down when the match ends.',
         config: 'arena-pool.mode: external',
         href: '/docs/tea/user/configuring-network-mode#external',
     },
@@ -31,32 +31,32 @@ const features = [
     {
         emoji: '⚔',
         title: 'Arena lifecycle + warm pool',
-        body: 'WAITING → COUNTDOWN → STARTING → LIVE → ENDING state machine. Pre-allocated arenas so players never wait on a schematic paste.',
+        body: 'Arenas move through WAITING, COUNTDOWN, STARTING, LIVE and ENDING. TeaCore pastes arenas ahead of time, so players don\'t wait on a schematic paste.',
     },
     {
         emoji: '🗺',
         title: 'In-game map authoring',
-        body: '/tea map create - build your arena in a throwaway void world, mark spawns, save. Schematic capture handled for you.',
+        body: 'Run /tea map create, build your arena in a throwaway void world, mark spawns and save. TeaCore captures the schematic for you.',
     },
     {
         emoji: '📦',
         title: 'Kit + ability framework',
-        body: 'Kits bundle items and ability bindings. Abilities are Java classes that get cooldown tracking, trigger wiring, and effect bundles for free.',
+        body: 'Kits bundle items and ability bindings. You write abilities as Java classes, and TeaCore adds cooldown tracking, trigger wiring and effect bundles.',
     },
     {
         emoji: '🌐',
         title: 'Proxy-aware networking',
-        body: 'Redis-backed coordination for multi-server fleets. Queue, arena snapshots, matchmaker leader election, cross-server control commands.',
+        body: 'Redis coordinates multi-server fleets: the queue, arena snapshots, matchmaker leader election and cross-server control commands.',
     },
     {
         emoji: '💬',
         title: 'Per-arena chat routing',
-        body: 'Chat is scoped to the arena by default. Team / staff / global channels are opt-in. Nobody leaks match banter to the lobby.',
+        body: 'By default, chat stays inside the arena, so match chat doesn\'t reach the lobby. Team, staff and global channels are opt-in.',
     },
     {
         emoji: '📊',
         title: 'Embedded web dashboard',
-        body: 'Every running arena, queue, and player on one React page served by the plugin itself. View, filter, start, release, allocate from the browser.',
+        body: 'The plugin serves one React page that lists every running arena, queue and player. You can filter, start, release and allocate arenas from the browser.',
     },
 ];
 
@@ -65,11 +65,11 @@ function Hero() {
         <header className={styles.hero}>
             <div className={styles.heroInner}>
                 <h1 className={styles.heroTitle}>
-                    <span className={styles.heroAccent}>Tea</span> Minigames
+                    <span className={styles.heroAccent}>Tea</span>
                 </h1>
                 <p className={styles.heroTagline}>
-                    A reusable Spigot minigames engine (1.20.5+). Arenas, kits, queues, cross-server
-                    matchmaking, and a web dashboard - so your game plugin can focus on gameplay.
+                    A reusable minigames engine for Paper (or Spigot), 1.8.8 to the latest release. Arenas, kits, queues, cross-server
+                    matchmaking and a web dashboard, so your game plugin only has to handle gameplay.
                 </p>
                 <div className={styles.heroActions}>
                     <Link className="button button--primary button--lg" to="/docs/tea/user/installing">
@@ -93,7 +93,7 @@ function ModesSection() {
             <div className={styles.sectionInner}>
                 <h2>Pick a deployment shape</h2>
                 <p className={styles.sectionSub}>
-                    TeaCore supports three arena-pool modes so you can run it the way your fleet actually runs.
+                    TeaCore supports three arena-pool modes. Pick the one that matches how you run your servers.
                 </p>
                 <div className={styles.modeGrid}>
                     {deploymentModes.map((m) => (
@@ -129,39 +129,16 @@ function FeaturesSection() {
     );
 }
 
-function AscendCallout() {
-    return (
-        <section className={styles.section}>
-            <div className={styles.sectionInner}>
-                <div className={styles.callout}>
-                    <div>
-                        <h2>The flagship game: Ascend</h2>
-                        <p>
-                            A classic evolution-style minigame built entirely on Tea. Evolve through
-                            mob stages, land kills, climb the ladder. The whole game is a reference implementation
-                            of the engine.
-                        </p>
-                    </div>
-                    <Link className="button button--primary button--lg" to="/docs/ascend/user/installing">
-                        Install Ascend
-                    </Link>
-                </div>
-            </div>
-        </section>
-    );
-}
-
 export default function Home(): ReactNode {
     return (
         <Layout
-            title="Tea Minigames - Spigot minigames engine"
-            description="A reusable Spigot (1.20.5+) minigames engine: arenas, kits, queues, cross-server matchmaking, and a web dashboard."
+            title="Tea: minigames engine for Paper (or Spigot)"
+            description="A reusable minigames engine for Paper (or Spigot), 1.8.8 to the latest release: arenas, kits, queues, cross-server matchmaking, and a web dashboard."
         >
             <Hero />
             <main>
                 <ModesSection />
                 <FeaturesSection />
-                <AscendCallout />
             </main>
         </Layout>
     );

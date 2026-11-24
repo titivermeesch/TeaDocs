@@ -5,7 +5,7 @@ title: Extending with a new game
 
 # Extending with a new game
 
-A Tea game is a standard Spigot plugin that declares `depend: [TeaCore]` and registers a `GameDefinition` on enable. This page walks through building a hypothetical `MyGame` plugin end-to-end.
+A Tea game is a standard Paper (or Spigot) plugin that declares `depend: [TeaCore]` and registers a `GameDefinition` on enable. This page builds an example `MyGame` plugin from start to finish.
 
 ## 1. `plugin.yml`
 
@@ -13,22 +13,24 @@ A Tea game is a standard Spigot plugin that declares `depend: [TeaCore]` and reg
 name: MyGame
 version: '${version}'
 main: com.example.mygame.MyGamePlugin
-api-version: '1.21'
+api-version: '1.13'
 depend: [TeaCore]
 ```
+
+Keep `api-version` at `'1.13'`. A server refuses to load a plugin whose `api-version` is newer than the server itself, so `'1.21'` would lock out everything from 1.13 to 1.20. Servers older than 1.13 ignore the field. To run on every version TeaCore supports (1.8.8 to the latest), build against both server APIs and use `core.platform()` for anything version-specific: see [Supporting every version](./platform.md).
 
 If your game uses other plugins that must be present at enable time, add them to `depend:`. For example, a game that relies on LibsDisguises for mob morphs would declare `depend: [TeaCore, LibsDisguises]`.
 
 ### Pinning a compatible TeaCore version
 
-A game built against one TeaCore API may break against an older or newer core. Guard against that at the very top of `onEnable` so your game refuses to start - rather than fail in confusing ways later - when the installed TeaCore doesn't match what you built against:
+A game built against one TeaCore API may break against an older or newer core. Check the version at the top of `onEnable`. If the installed TeaCore doesn't match what you built against, your game then refuses to start instead of failing in confusing ways later:
 
 ```java
 TeaCoreAPI core = TeaCoreAPI.get();
 if (!core.requireVersion(this, ">=0.1.0")) return;
 ```
 
-`requireVersion` checks the requirement and, on a mismatch, logs an explanatory error and disables your plugin (so you just `return`). The spec is an operator followed by a version: `==` for an exact core, `>=` for a minimum, plus `>`, `<=`, `<`; a bare version (`"0.1.0"`) means `>=`. Only the numeric `major.minor.patch` is compared - a `-SNAPSHOT` or other qualifier is ignored, so `0.1.0-SNAPSHOT` satisfies `>=0.1.0`. To only check without auto-disabling, call `core.isCompatible(">=0.1.0")` and handle it yourself.
+`requireVersion` checks the requirement and, on a mismatch, logs an explanatory error and disables your plugin, so you only need to `return`. The spec is an operator followed by a version: `==` for an exact core, `>=` for a minimum, plus `>`, `<=`, `<`; a bare version (`"0.1.0"`) means `>=`. TeaCore compares only the numeric `major.minor.patch` and ignores `-SNAPSHOT` or any other qualifier, so `0.1.0-SNAPSHOT` satisfies `>=0.1.0`. To check without disabling the plugin, call `core.isCompatible(">=0.1.0")` and handle it yourself.
 
 ## 2. Register a `GameDefinition`
 
@@ -84,14 +86,14 @@ public final class MyGamePlugin extends JavaPlugin {
 
 Notes:
 
-- `GameDefinition` does **not** carry min/max player bounds - those live on each `MapDefinition`, so different maps for the same game can have different capacities.
-- `LifecycleConfig` accepts a 4-arg, 5-arg, or 7-arg form; the full 7-arg form above is recommended when you want control over the title threshold and chat announcement times. `LifecycleConfig.defaults()` returns `(120, 30, 5, 10, 0, 10, [30, 15])`.
-- `icon(Material)` sets the item that stands for your game in TeaCore's menus (the game selector and the game list under Kits in the profile). Without it, or with `null`, the icon is `PAPER`. Admins can override the icon and the name with `game-display.<id>` in TeaCore's config. A lobby that doesn't run your plugin gets them the same way. See [Game names and icons](../user/lobby.md#game-display).
+- `GameDefinition` has no min/max player bounds. Those live on each `MapDefinition`, so different maps for the same game can have different capacities.
+- `LifecycleConfig` accepts a 4-arg, 5-arg, or 7-arg form; use the full 7-arg form above when you want to set the title threshold and chat announcement times. `LifecycleConfig.defaults()` returns `(120, 30, 5, 10, 0, 10, [30, 15])`.
+- `icon(Material)` sets the item that stands for your game in TeaCore's menus (the game selector and the game list under Kits in the profile). Without it, or with `null`, the icon is `PAPER`. Admins can override the icon and the name with `game-display.<id>` in TeaCore's config. A lobby that doesn't run your plugin gets them the same way. See [Game names and icons](../user/lobby.md#game-names-and-icons).
 - A typical implementation reads most of these values from its own `config.yml` and passes them into the builder at enable time.
 
 ## 3. Write a controller
 
-Most of the game logic sits in a single "controller" class that's a `Listener` on the Bukkit event bus, plus a couple of scheduled tasks if needed.
+Most of the game logic sits in one "controller" class that's a `Listener` on the Bukkit event bus, plus any scheduled tasks you need.
 
 ```java
 public final class MyGameController implements Listener {
@@ -171,7 +173,7 @@ public void onTimeout(MatchTimedOutEvent event) {
 }
 ```
 
-A typical handler picks a winner based on the game's own scoring (highest score, most lives remaining, etc.).
+A typical handler picks the winner from the game's own scoring, such as highest score or most lives remaining.
 
 ## 5. Kits and abilities
 
@@ -200,9 +202,9 @@ Players pick kits through TeaCore's kit picker. Open it from your game (for exam
 
 ### When to use your own dispatcher instead
 
-If your abilities don't map cleanly onto "kit contains a list of bindings" - for example "one ability per evolution stage, unlocked mid-match" - you can skip `AbilityBinding` and write your own Bukkit listener that dispatches directly to ability classes. The trade-off: you lose automatic cooldown tracking and trigger wiring, but you also don't have to squeeze the gameplay into a kit-shaped hole.
+If your abilities don't fit "a kit contains a list of bindings" (for example "one ability per evolution stage, unlocked mid-match"), you can skip `AbilityBinding` and write your own Bukkit listener that calls your ability classes. You lose automatic cooldown tracking and trigger wiring, and in exchange you can shape the gameplay without kits.
 
-Kits can still be part of the game as passive flavor. You can register kits with empty `AbilityBinding` lists and have the controller read the player's selected kit id and apply a passive perk.
+Kits can still add passive perks. You can register kits with empty `AbilityBinding` lists and have the controller read the player's selected kit id and apply a passive perk.
 
 ## 6. Sidebar and chat
 
@@ -232,7 +234,7 @@ core.sidebars().registerGame(this, MY_GAME, getConfig().getConfigurationSection(
 
 Call `registerGame` again after your config reload, and `core.sidebars().unregisterGame(MY_GAME)` in `onDisable`. [Sidebars and menus](./sidebars-and-menus.md#sidebars) covers built-in tags, row columns and custom providers.
 
-For chat, never call `Bukkit.broadcast` - use `MatchBroadcaster`:
+For chat, use `MatchBroadcaster` instead of `Bukkit.broadcast`:
 
 ```java
 core.matchBroadcaster().toMatch(arena, "mygame.announce",
@@ -242,7 +244,7 @@ core.matchBroadcaster().actionBarToMatch(arena, "mygame.kill.feed",
         Map.of("killer", killer.getName(), "victim", victim.getName()));
 ```
 
-This keeps messages scoped to the arena so nothing leaks across matches running on the same server.
+`MatchBroadcaster` keeps messages inside the arena, so players in other matches on the same server don't see them.
 
 ## 7. Menus
 
@@ -319,8 +321,7 @@ core.stats().register(new StatsProvider() {
 
 See [Persistence guide](./persistence-guide.md) for table conventions and dialect handling.
 
-### Match history {#match-history}
-
+### Match history
 TeaCore records every finished match for you: game, map, server, duration, winner, and each player's team, kills, deaths, assists and result. You don't write anything. Read it with `core.matchHistory()`:
 
 ```java
@@ -358,11 +359,11 @@ Admin-facing docs: [Match history](../user/match-history.md).
 
 ## 11. Maps
 
-Use the admin commands in [Authoring a map](../user/adding-a-map.md). Maps are registered at runtime when TeaCore loads `plugins/TeaCore/maps/<gameId>.yml` on startup (or when an admin runs `/tea map reload`). Your plugin doesn't ship default maps unless you want to - a bare install has zero maps and admins author them in-game.
+Use the admin commands in [Authoring a map](../user/adding-a-map.md). TeaCore registers maps at runtime when it loads `plugins/TeaCore/maps/<gameId>.yml` on startup (or when an admin runs `/tea map reload`). Your plugin doesn't need to ship default maps. A bare install has zero maps, and admins author them in-game.
 
 If your game needs to attach data to a map beyond the built-in fields (ceremony spawns, boss-entity type, capture points, ...), register a `MapExtension` on enable. Extensions plug into `/tea map` authoring, YAML persistence, and typed lookup without your game owning a second command prefix.
 
-The simplest case is a single named spawn - ship as a `SpawnPointExtension`:
+For a single named spawn, use a `SpawnPointExtension`:
 
 ```java
 // Declare a typed key once per extension.
@@ -380,9 +381,40 @@ core.maps().extensions().register(SpawnPointExtension.builder(BOSS_PAD)
 Optional<SpawnPoint> pad = map.extension(BOSS_PAD);
 ```
 
-Admins now run `/tea map bosspad` while editing the draft to capture their current location. Core handles YAML round-trips, coordinate translation between edit-world and paste-origin, and the `/tea map status` summary. A `required(true)` extension also shows up as a step in the map-setup sidebar - using your `statusLabel` and subcommand - so admins get authoring guidance for your game with no extra work.
+Admins now run `/tea map bosspad` while editing the draft to capture their current location. TeaCore handles YAML round-trips, coordinate translation between edit-world and paste-origin, and the `/tea map status` summary. A `required(true)` extension also shows up as a step in the map-setup sidebar, using your `statusLabel` and subcommand, so admins get authoring guidance for your game with no extra code.
 
-For non-spawn data (entity types, block regions, config-shaped structs), implement `MapExtension<T>` directly. Core calls `handleCommand` when admins type `/tea map <subcommand>`, `toYaml`/`fromYaml` at save/load, and optionally `toRelative`/`toAbsolute` if your value carries coordinates that need to survive the edit-world-to-minCorner relocation. A game that needs two named spawn points (for example a viewer pad and a mob pad for a ceremony) can register two `SpawnPointExtension`s, each with its own key and subcommand.
+For a list of points (chests, capture points, item spawners), use `MultiPointExtension`. Each `/tea map <subcommand>` adds a point at the admin's block, `/tea map <subcommand> clear` removes them all, and the value is a `List<SpawnPoint>`:
+
+```java
+public static final MapExtensionKey<List<SpawnPoint>> CHESTS = MultiPointExtension.key("mygame:chests");
+
+core.maps().extensions().register(MultiPointExtension.builder(CHESTS)
+        .subcommand("chest")         // /tea map chest
+        .label("chest")              // status lines, markers, point ids (chest-0, chest-1, ...)
+        .icon(Material.CHEST)        // shown on the editor's point tool and checklist
+        .markerColor(Color.ORANGE)   // particle colour of the markers
+        .build());
+
+List<SpawnPoint> chests = map.extension(CHESTS).orElse(List.of());
+```
+
+`SpawnPointExtension.Builder` has the same `icon(...)` and `markerColor(...)`.
+
+**Which game an extension belongs to.** Start the key id with your game id and a colon (`mygame:chests`). TeaCore reads the game from that prefix (`MapExtension.game()`) and only uses the extension for that game's maps: validation, `/tea map status`, the setup sidebar and the editor tools all skip other games' extensions. An id without a prefix applies to every game. Override `game()` if your ids don't follow the pattern.
+
+For non-spawn data (entity types, block regions, config-shaped structs), implement `MapExtension<T>` directly. TeaCore calls `handleCommand` when admins type `/tea map <subcommand>`, `toYaml`/`fromYaml` at save/load, and the optional `toRelative`/`toAbsolute` if your value carries coordinates that need to survive the edit-world-to-minCorner relocation. A game that needs two named spawn points (for example a viewer pad and a mob pad for a ceremony) can register two `SpawnPointExtension`s, each with its own key and subcommand.
+
+**Map editor support.** The [editor tools](../user/adding-a-map.md#editor-tools) draw markers for, place and remove points of any extension that implements these optional methods (the built-in extensions already do):
+
+| Method | Default | Purpose |
+| --- | --- | --- |
+| `List<SpawnPoint> points(T value)` | empty | The points to draw as markers, in the same coordinates as the value. |
+| `T removePoint(T value, int index)` | `null` (clear) | The value without the point at `index`; `null` clears the extension. |
+| `T placePoint(T current, SpawnPoint point)` | `null` | The value after placing a point. Returning `null` makes the point tool call `handleCommand` with no arguments instead. |
+| `Material editorIcon()` | `PAPER` | Item for the point tool and the checklist. |
+| `Color markerColor()` | white | Particle colour. |
+
+An extension that implements none of them still works with commands; it shows in the checklist and on the point tool, but without markers.
 
 ## 12. Translations
 
@@ -392,11 +424,10 @@ Each game plugin ships its own `lang/<locale>.yml` bundle and registers it on en
 core.messageService().registerBundles(this, List.of("en_US"));
 ```
 
-Prefix all keys with your game id (for example `mygame.match.won`, `mygame.stage.forest`) so they don't collide with TeaCore (`core.*`), TeaCore's lobby features (`lobby.*`), or other games. Ship whatever locales you want here - the list you pass is loaded from your jar's `lang/<locale>.yml` resources, and admins can override them with files in `plugins/<YourPlugin>/lang/`.
+Prefix all keys with your game id (for example `mygame.match.won`, `mygame.stage.forest`) so they don't collide with TeaCore (`core.*`), TeaCore's lobby features (`lobby.*`), or other games. Ship any locales you want. TeaCore loads the list you pass from your jar's `lang/<locale>.yml` resources, and admins can override them with files in `plugins/<YourPlugin>/lang/`.
 
-## 13. Placeholders {#placeholders}
-
-Once you register a stats schema (step 10), TeaCore exposes every column as a PlaceholderAPI placeholder `%tea_<gameId>_<stat>%` with no extra work. To add placeholders that aren't stat columns (live match state, computed values), register a `PlaceholderResolver` under your game id:
+## 13. Placeholders
+Once you register a stats schema (step 10), TeaCore exposes each column as a PlaceholderAPI placeholder `%tea_<gameId>_<stat>%` with no extra code. To add placeholders that aren't stat columns (live match state, computed values), register a `PlaceholderResolver` under your game id:
 
 ```java
 core.placeholders().register("mygame", (player, key) -> switch (key) {
@@ -407,11 +438,15 @@ core.placeholders().register("mygame", (player, key) -> switch (key) {
 });
 ```
 
-These resolve as `%tea_mygame_stage%`, `%tea_mygame_kills_this_round%`, and so on. Return `null` for any key you don't own so other resolvers (and the auto stat columns) still get a chance. The resolver may receive a `null` or offline player, so guard accordingly. See the [placeholder reference](../user/placeholders.md) for everything TeaCore exposes out of the box.
+These resolve as `%tea_mygame_stage%`, `%tea_mygame_kills_this_round%`, and so on. Return `null` for any key you don't own so other resolvers (and the auto stat columns) still get a chance. The resolver may receive a `null` or offline player, so check for both. See the [placeholder reference](../user/placeholders.md) for everything TeaCore exposes out of the box.
 
-## 14. Putting it together
+## 14. Editable settings
 
-Your `onEnable` ends up roughly like this:
+List your config in a settings schema and staff can change it from `/tea admin` and the dashboard. See [Editable settings](./settings.md).
+
+## 15. Putting it together
+
+Your `onEnable` ends up close to this:
 
 ```java
 @Override
@@ -438,4 +473,4 @@ public void onEnable() {
 }
 ```
 
-From here the rest is just your game's own mechanics.
+The rest is your game's own mechanics.

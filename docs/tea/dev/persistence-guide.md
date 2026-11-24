@@ -5,7 +5,7 @@ title: Persistence guide
 
 # Persistence guide
 
-TeaCore owns a shared `javax.sql.DataSource` (HikariCP pool over SQLite or MySQL depending on `config.yml`). Your game plugin gets at it via `core.database().dataSource()` and runs plain JDBC against it.
+TeaCore owns a shared `javax.sql.DataSource` (HikariCP pool over SQLite or MySQL depending on `config.yml`). Your game plugin gets it from `core.database().dataSource()` and runs plain JDBC against it.
 
 ## The DatabaseService interface
 
@@ -16,7 +16,7 @@ public interface DatabaseService {
 }
 ```
 
-`dataSource()` returns the shared pool. `registerMigrations` reads migrations bundled inside your plugin jar and applies any that haven't been applied yet, recording successful versions in `tea_schema_versions(plugin_name, version)`.
+`dataSource()` returns the shared pool. `registerMigrations` reads the migrations bundled in your plugin jar, applies any new ones, and records successful versions in `tea_schema_versions(plugin_name, version)`.
 
 ## Registering migrations
 
@@ -27,14 +27,14 @@ core.database().registerMigrations(this, "mygame", List.of(
 ));
 ```
 
-Each file lives at `resources/db/migrations/mygame/<name>.sql` in your plugin jar. Filenames **must** match `V<int>__<description>.sql` - the runner parses the version number, applies files in ascending order, and records successful migrations. Already-applied versions are skipped.
+Each file lives at `resources/db/migrations/mygame/<name>.sql` in your plugin jar. Filenames **must** match `V<int>__<description>.sql`. The runner parses the version number, applies files in ascending order, records successful migrations, and skips versions it already applied.
 
 ## Conventions
 
-- Prefix every table with your plugin's namespace (`mygame_stats`, not `stats`). This keeps you from stepping on another plugin in the shared DB.
-- Use `VARCHAR(36)` + UUID strings rather than BIGINT foreign keys - works with both SQLite and MySQL and matches the rest of Tea.
+- Prefix every table with your plugin's namespace (`mygame_stats`, not `stats`). That way your tables don't clash with another plugin's in the shared DB.
+- Use `VARCHAR(36)` UUID strings rather than BIGINT foreign keys. They work on both SQLite and MySQL and match the rest of Tea.
 - Reference `tea_player_profile(uuid)` if you want a formal FK; SQLite doesn't enforce it by default but MySQL does.
-- Don't use MySQL-specific features (stored procedures, JSON operators, etc.) in migrations if you want your plugin to work on SQLite installs too. Stick to plain DDL/DML.
+- If you want your plugin to work on SQLite installs too, keep MySQL-specific features (stored procedures, JSON operators) out of migrations and use plain DDL/DML.
 
 ## Example migration
 
@@ -72,13 +72,13 @@ try (Connection c = core.database().dataSource().getConnection();
 
 ## Player profile
 
-Every first-seen UUID gets a row in `tea_player_profile` automatically on `PlayerJoinEvent` - you don't need to insert one. Access via `core.playerProfiles().getOrCreate(uuid)`.
+TeaCore inserts a row in `tea_player_profile` for each first-seen UUID on `PlayerJoinEvent`, so you don't need to. Read it with `core.playerProfiles().getOrCreate(uuid)`.
 
-The shared profile is intentionally thin (`uuid`, `first_seen`, `last_seen`, `locale`, `metadata_json`). Per-game stats live in per-game tables so adding or removing a game doesn't require schema changes elsewhere.
+The shared profile holds only `uuid`, `first_seen`, `last_seen`, `locale` and `metadata_json`. Per-game stats live in per-game tables, so adding or removing a game needs no schema changes elsewhere.
 
 ## Exposing stats to `/tea stats`
 
-TeaCore's `/tea stats [player]` command aggregates results from every registered `StatsProvider`. Register yours on enable and the command will call back to your code whenever someone looks up a player:
+TeaCore's `/tea stats [player]` command aggregates results from every registered `StatsProvider`. Register yours on enable, and the command calls your code each time someone looks up a player:
 
 ```java
 core.stats().register(new StatsProvider() {
@@ -94,8 +94,8 @@ core.stats().register(new StatsProvider() {
 });
 ```
 
-Return an empty map to indicate "no rows for this player". The core command will just skip your section in that case.
+Return an empty map when you have no rows for the player. The command then skips your section.
 
 ## Connection pool notes
 
-Both `sqlite-jdbc` and `mysql-connector-j` ship unrelocated inside the shadow jar so their native libraries and `META-INF/services` entries keep working. Don't try to shade them yourself if you depend on `core` as a shadow artifact - the classes are already there.
+Both `sqlite-jdbc` and `mysql-connector-j` ship unrelocated inside the shadow jar so their native libraries and `META-INF/services` entries keep working. If you depend on `core` as a shadow artifact, don't shade them yourself: the classes are already there.

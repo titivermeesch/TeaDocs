@@ -11,7 +11,7 @@ All TeaCore events extend `org.bukkit.event.Event`. You handle them with standar
 
 ### `ArenaStateChangeEvent`
 
-Fired on every state transition. Handlers should guard on `event.arena().gameId()` to limit to games they own.
+TeaCore fires it on each state transition. Check `event.arena().gameId()` in your handler so it only reacts to your own game.
 
 ```java
 public final class ArenaStateChangeEvent extends Event {
@@ -39,7 +39,7 @@ public void onState(ArenaStateChangeEvent event) {
 
 ### `ArenaPlayerJoinEvent` / `ArenaPlayerLeaveEvent`
 
-Fired when a player is added to or removed from an arena, including when they transfer between arenas or disconnect. `ArenaPlayerLeaveEvent.LeaveReason` is `DISCONNECT | COMMAND | KICK | MATCH_ENDED`.
+TeaCore fires these when a player joins or leaves an arena, including transfers between arenas and disconnects. `ArenaPlayerLeaveEvent.LeaveReason` is `DISCONNECT | COMMAND | KICK | MATCH_ENDED`.
 
 ```java
 public final class ArenaPlayerJoinEvent extends Event {
@@ -96,7 +96,7 @@ public void onEnd(MatchEndEvent event) {
 
 ### `MatchTimedOutEvent`
 
-Fires once when an arena's LIVE phase reaches `LifecycleConfig.maxMatchSeconds`. The owning game is expected to listen, pick a winner (or draw), and call `ArenaManager#endMatch`. If nothing handles the event, the arena stays in LIVE.
+TeaCore fires it once when an arena's LIVE phase reaches `LifecycleConfig.maxMatchSeconds`. The owning game listens, picks a winner (or a draw), and calls `ArenaManager#endMatch`. If nothing handles the event, the arena stays in LIVE.
 
 ```java
 public final class MatchTimedOutEvent extends Event {
@@ -139,7 +139,7 @@ Prefer this over `PlayerDeathEvent#getKiller()` for kill feeds and rewards: it i
 
 ## Standard Bukkit events
 
-You also work with the usual Bukkit events - `PlayerDeathEvent`, `EntityDamageEvent`, `PlayerInteractEvent`, etc. Guard on arena membership using `core.arenas().arenaOf(uuid)` to avoid reacting outside a match context:
+You also handle the usual Bukkit events, such as `PlayerDeathEvent`, `EntityDamageEvent` and `PlayerInteractEvent`. Check arena membership with `core.arenas().arenaOf(uuid)` so your handler ignores players outside a match:
 
 ```java
 Arena arena = core.arenas().arenaOf(player.getUniqueId()).orElse(null);
@@ -149,7 +149,7 @@ if (arena.state() != ArenaState.LIVE) return;
 
 ## Chat
 
-`AsyncPlayerChatEvent` is filtered by TeaCore's `ChatRouter` based on each sender's active channel. Game plugins should not add their own broad `AsyncPlayerChatEvent` handler that broadcasts to all online players - use `MatchBroadcaster` instead:
+TeaCore's `ChatRouter` filters `AsyncPlayerChatEvent` by each sender's active channel. Don't add your own `AsyncPlayerChatEvent` handler that broadcasts to all online players. Use `MatchBroadcaster`:
 
 ```java
 core.matchBroadcaster().toMatch(arena, "mygame.announce",
@@ -162,4 +162,4 @@ core.matchBroadcaster().toTeam(team, "mygame.team.rally");
 core.matchBroadcaster().toSpectators(arena, "mygame.spectator.hint");
 ```
 
-`MatchBroadcaster` always respects arena boundaries. The channels it exposes (`toMatch`, `toTeam`, `toSpectators`, `actionBarToMatch`) all accept an optional placeholder map for MiniMessage substitution via `MessageService`.
+`MatchBroadcaster` stays inside arena boundaries. Its methods (`toMatch`, `toTeam`, `toSpectators`, `actionBarToMatch`) all accept an optional placeholder map for MiniMessage substitution via `MessageService`.

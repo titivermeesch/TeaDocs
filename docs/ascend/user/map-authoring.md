@@ -5,25 +5,25 @@ title: Map authoring
 
 # Ascend map authoring
 
-Ascend uses the same core `/tea map ...` commands as any other Tea game - see the [Tea map authoring guide](../../tea/user/adding-a-map.md) for the core workflow (create / pos1 / pos2 / addspawn / save). This page only covers the Ascend-specific additions.
+Ascend uses the same core `/tea map ...` commands as every Tea game. See the [Tea map authoring guide](../../tea/user/adding-a-map.md) for the core workflow (create, pos1, pos2, addspawn, save). This page covers what Ascend adds.
 
 ## Ascend's additional required fields
 
 On top of the core requirements (pos1, pos2, waiting spawn, at least one participant spawn, min/max), an Ascend map must have:
 
-- **Evolution viewer spawn** - where the evolving player is teleport-locked in spectator during the ceremony.
-- **Evolution mob spawn** - where the old-stage and new-stage mob puppets appear for the evolving player to watch.
+- **Evolution viewer spawn**: where the evolving player is teleport-locked in spectator during the ceremony.
+- **Evolution mob spawn**: where the old-stage and new-stage mob puppets appear for the evolving player to watch.
 
 `/tea map save` refuses to save an Ascend map without both evolution spawns. They also appear as steps in the core [setup sidebar](../../tea/user/adding-a-map.md#the-setup-sidebar) and in `/tea map status`, so you can see what's left before saving.
 
 ## Designing a ceremony chamber
 
-The ceremony is per-player - nobody else in the arena sees what's happening - so you don't need to hide the chamber from the rest of the map. A few layout tips make it feel good:
+Only the evolving player sees the ceremony, so you don't need to hide the chamber from the rest of the map. Layout tips:
 
 - Put the **viewer** spawn in an open "balcony" or cinematic position, facing the mob spawn.
-- Put the **mob** spawn a few blocks in front of the viewer, at eye level or slightly below, facing the viewer. A 4-6 block gap usually looks best.
-- Size the chamber so the mob puppets fit comfortably. The largest morphs (Iron Golem, Warden) need roughly a 4-block-tall, 3-block-wide space.
-- Multiple players can be evolving at the same time without interfering, so the chamber only needs to fit one puppet at a time.
+- Put the **mob** spawn a few blocks in front of the viewer, at eye level or a little below, facing the viewer. A gap of 4 to 6 blocks looks best.
+- Size the chamber so the mob puppets fit. The largest morphs (Iron Golem, Warden) need a space about 4 blocks tall and 3 blocks wide.
+- Several players can evolve at the same time without interfering, so the chamber needs to fit one puppet at a time.
 
 ## Ascend-specific commands
 
@@ -33,15 +33,15 @@ Use these on top of the core `/tea map` commands during a `/tea map create` or `
 /tea map evolutionviewer
 ```
 
-Stand where the evolving player should be locked during an evolution ceremony and run this. Facing direction is captured - point toward where the mob puppet will be.
+Stand where the evolving player should be locked during an evolution ceremony and run this. The command saves the direction you face, so face where the mob puppet will be.
 
 ```
 /tea map evolutionmob
 ```
 
-Stand where the old/new mob puppets should appear (typically a few blocks in front of the viewer, at eye level) and run this. Facing direction is captured - point toward where the viewer will be.
+Stand where the old/new mob puppets should appear (a few blocks in front of the viewer, at eye level) and run this. The command saves the direction you face, so face where the viewer will be.
 
-You can re-run either command at any time during the edit session to move the spawn. The previous value is overwritten.
+Run either command again during the edit session to move the spawn. The new position replaces the old one.
 
 ## Full Ascend authoring workflow
 

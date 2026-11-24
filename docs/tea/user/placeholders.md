@@ -5,7 +5,7 @@ title: PlaceholderAPI
 
 # PlaceholderAPI placeholders
 
-TeaCore ships a single [PlaceholderAPI](https://www.spigotmc.org/resources/placeholderapi.6245/) expansion with the identifier `tea`. Every placeholder is reached as `%tea_<...>%`. PlaceholderAPI is a soft dependency: install it on any server where you want these placeholders rendered (scoreboards, tab lists, holograms, chat formats). If it isn't installed the placeholders simply aren't registered - TeaCore still works.
+TeaCore ships a single [PlaceholderAPI](https://www.spigotmc.org/resources/placeholderapi.6245/) expansion with the identifier `tea`. Each placeholder has the form `%tea_<...>%`. PlaceholderAPI is a soft dependency: install it on any server where you want these placeholders rendered (scoreboards, tab lists, holograms, chat formats). Without it, TeaCore still runs and doesn't register the placeholders.
 
 You only need to install PlaceholderAPI; the `tea` expansion registers itself when TeaCore starts. To turn the expansion off, set `features.placeholders: false` in `config.yml` and restart (see [Feature switches](./features.md)).
 
@@ -33,7 +33,7 @@ On a standalone server, "across the network" means this server.
 
 ## Core stats
 
-TeaCore records game-agnostic stats for every game built on it, so these totals work network-wide without each game implementing its own counters. Kills, deaths and assists come from TeaCore's [kill credit](./kill-credit.md); in team games every member of the winning team gets the win.
+TeaCore records game-agnostic stats for every game built on it, so these totals work network-wide and games don't need their own counters. Kills, deaths and assists come from TeaCore's [kill credit](./kill-credit.md); in team games every member of the winning team gets the win.
 
 | Placeholder | Description |
 | --- | --- |
@@ -45,6 +45,13 @@ TeaCore records game-agnostic stats for every game built on it, so these totals 
 | `%tea_assists%` | Assists (across all games) |
 | `%tea_winrate%` | Win percentage, one decimal (e.g. `42.9`) |
 | `%tea_kdr%` | Kill/death ratio, two decimals |
+
+## Ranked
+
+| Placeholder | Description |
+| --- | --- |
+| `%tea_rating_<game>%` | The player's [ranked](./ranked.md) rating in that game, e.g. `%tea_rating_fireball%`. `1000` before their first ranked match. |
+| `%tea_rank_<game>%` | The player's place on that game's leaderboard, or `-` without ranked matches. Refreshed every minute. |
 
 ## Current arena, team, and queue
 
@@ -172,7 +179,7 @@ They read from the shared database, so they show the same ranking on every serve
 
 ## Per-game stats
 
-Every game that registers a stats schema gets its columns exposed automatically as `%tea_<gameId>_<stat>%`, where `<stat>` is the column label lower-cased with spaces turned into underscores. For Ascend, whose stat columns are Kills, Deaths, Evolves, Games played, and Games won:
+For each game that registers a stats schema, TeaCore exposes its columns as `%tea_<gameId>_<stat>%`, where `<stat>` is the column label lower-cased with spaces turned into underscores. For Ascend, whose stat columns are Kills, Deaths, Evolves, Games played, and Games won:
 
 ```
 %tea_ascend_kills%
@@ -182,7 +189,9 @@ Every game that registers a stats schema gets its columns exposed automatically 
 %tea_ascend_games_won%
 ```
 
-This works on any server in the fleet - including a lobby with no game jar loaded - because the schema is read from the shared database.
+This works on any server in the fleet, including a lobby with no game jar loaded, because TeaCore reads the schema from the shared database.
+
+Three short names work for any game that has the matching column: `wins` for `games_won`, and `played` or `games` for `games_played`. So `%tea_ascend_wins%` equals `%tea_ascend_games_won%`, and `%tea_top_ascend_wins_1_name%` equals `%tea_top_ascend_games_won_1_name%`. If a game has a column named `wins`, TeaCore uses that column.
 
 ## Ascend's extra placeholders
 
@@ -195,4 +204,4 @@ On top of its stat columns, Ascend registers a few of its own:
 | `%tea_ascend_stage_index%` | Same, 0-based |
 | `%tea_ascend_stage_max%` | Number of evolution stages configured |
 
-See [adding placeholders from a game](../dev/extending-with-a-new-game.md#placeholders) to register your own.
+See [adding placeholders from a game](../dev/extending-with-a-new-game.md#13-placeholders) to register your own.

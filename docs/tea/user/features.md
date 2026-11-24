@@ -21,6 +21,15 @@ features:
   queue-bossbar: true
   lobby-hotbar: true
   match-history: true
+  match-recap: true
+  map-editor-tools: true
+  spectator-tools: true
+  map-voting: true
+  waiting-protection: true
+  kit-item: true
+  leave-item: true
+  ranked: true
+  quests: true
   games: {}
 ```
 
@@ -33,6 +42,15 @@ features:
 | `queue-bossbar` | `true` | The bossbar that shows a player's queue position while they wait for a match. | Immediately (checked every tick) |
 | `lobby-hotbar` | `true` | The [lobby hotbar](./lobby.md#lobby-hotbar) items (`lobby.hotbar.items`). Has no effect unless `lobby.enabled: true`. | On `/tea reload`, for players who then join, respawn or leave an arena |
 | `match-history` | `true` | Recording finished matches for the [match history](./match-history.md) menu. `false` stops recording new matches; matches already stored stay. | On `/tea reload` |
+| `match-recap` | `true` | A personal summary in chat for every player when a match ends: result, their kills, deaths, assists, damage and place, the MVP, and rating changes in ranked. See [Match history](./match-history.md#match-recap). | Right away |
+| `quests` | `true` | [Daily and weekly quests](./quests.md) and `/quests`. | Within a second |
+| `ranked` | `true` | [Ranked play](./ranked.md): `/play <game> ranked`, ratings and `/leaderboard`. Can be set per game. | From the next `/play` |
+| `map-voting` | `true` | [Map voting](./map-voting.md) while players wait for a match. Can be set per game. | From the next arena that opens |
+| `waiting-protection` | `true` | Players waiting for a match take no damage and don't get hungry, until the match starts. Can be set per game. | Immediately |
+| `kit-item` | `true` | Players waiting for a match get a hotbar item that opens the game's kit picker. Only for games with kits. Set the item and slot under `kit-item` (`material`, default `NETHER_STAR`; `hotbar-slot`, default `0`). Can be set per game. | For players joining after the change |
+| `leave-item` | `true` | Players waiting for a match get a hotbar item that leaves the arena, like `/leave`. Set the item and slot under `leave-item` (`material`, default `RED_BED`; `hotbar-slot`, default `8`). Can be set per game. | For players joining after the change |
+| `spectator-tools` | `true` | [Spectator tools](./spectators.md): ghost mode, the teleporter, play again and leave items, and the spectator sidebar. Can be set per game. | Within half a second |
+| `map-editor-tools` | `true` | The [map editor tools](./adding-a-map.md#editor-tools): the tool hotbar and the particle markers while you edit a map. `/tea map` commands work either way. | On `/tea reload`, from the next `/tea map create` or `edit` |
 | `games` | `{}` | Per-game overrides, see below. | On `/tea reload` |
 
 A missing key counts as `true`. If a later TeaCore version adds a switch, that feature stays on until you turn it off.
@@ -61,7 +79,7 @@ TeaCore checks two switches per game:
 
 A per-game value wins over the server-wide one, in both directions. With `sidebar: false` server-wide and `games.fireball.sidebar: true`, only Fireball shows its sidebar.
 
-`lobby-sidebar`, `placeholders`, `queue-bossbar`, `lobby-hotbar` and `match-history` are server-wide only. Putting them under `games.<id>` has no effect.
+`lobby-sidebar`, `placeholders`, `queue-bossbar`, `lobby-hotbar`, `match-history` and `map-editor-tools` are server-wide only. Putting them under `games.<id>` has no effect.
 
 ## Per-file `enabled:` flags
 
@@ -79,8 +97,7 @@ Each layout file also has its own switch. Use it to turn off one sidebar or one 
 
 A sidebar or menu shows only if **all** switches that apply to it are on: the server-wide feature, the per-game override (if any) and the file's own `enabled:`.
 
-## `/board`: per-player sidebar toggle {#board}
-
+## `/board`: per-player sidebar toggle
 Players can hide their own sidebar with `/board` (alias `/sidebar`). Running it again shows it again.
 
 - Permission: `tea.board`, granted to everyone by default. See [Permissions](./permissions.md).

@@ -5,32 +5,32 @@ title: Getting started
 
 # Getting started
 
-Tea is a single-plugin engine for running Minecraft minigames on Spigot (1.20.5+):
+Tea is a single-plugin engine for running Minecraft minigames on Paper (or Spigot), from 1.8.8 to the latest release:
 
-- **TeaCore** - the engine. Every server that runs a game needs this.
+- **TeaCore**: the engine. Every server that runs a game needs it.
 - **Lobby features** (connection signs, `/play` and the game selector, `/profile`, the lobby hotbar, `/leave`, lobby spawn / gamemode management) ship inside TeaCore. Turn them on with `lobby.enabled: true` in `plugins/TeaCore/config.yml`. Set this on every hub server; leave it off (the default) on arena-only servers.
 
-Games are separate plugin jars on top of Tea. This section is about installing and operating Tea itself; for any specific game, see its own docs section.
+Games are separate plugin jars on top of Tea. This section covers installing and running Tea. For a specific game, see that game's docs section.
 
 ## Minimum requirements
 
-- Minecraft server 1.20.5 or newer (Spigot, Paper, or a Paper-based fork such as Purpur - Tea only uses Spigot API). Individual game plugins may require a higher minimum — see each game's own docs.
-- Java 21
-- WorldEdit or FastAsyncWorldEdit installed if you want to paste map schematics (soft dependency - everything else works without it)
-- Redis (optional, only required for cross-server matchmaking)
+- Minecraft 1.8.8 or newer: Paper (or Spigot) or a fork such as Purpur. See [Server versions](./server-versions.md).
+- Java 17 or newer
+- On 1.13 and newer: WorldEdit or FastAsyncWorldEdit to save and paste maps (soft dependency, not bundled). 1.8 to 1.12 servers don't need it.
+- Redis (optional, needed for cross-server matchmaking)
 - MySQL (optional, SQLite is the default)
 
-Individual games may have additional hard dependencies. Check the game's own "Installing" page before deploying.
+Games can have extra hard dependencies. Check the game's own "Installing" page before deploying.
 
 ## Pick your deployment shape
 
 | Shape | When to use | Redis needed? |
 | ----- | ----------- | ------------- |
-| **Standalone** - one server, multi-arena | Dev, small networks | No |
-| **Bungeecord / k8s** - one arena per server, proxy in front | Scalable production, k8s pods | Yes |
-| **Multi-server** - multiple servers, each running several arenas | Midsize networks | Yes |
+| **Standalone**: one server, multi-arena | Dev, small networks | No |
+| **Bungeecord / k8s**: one arena per server, proxy in front | Scalable production, k8s pods | Yes |
+| **Multi-server**: multiple servers, each running several arenas | Midsize networks | Yes |
 
-Pick one when setting `network.mode` in `plugins/TeaCore/config.yml`. All game behavior is identical across shapes; only routing changes.
+You pick one with `network.mode` in `plugins/TeaCore/config.yml`. Games behave the same in each shape; only routing changes.
 
 ## Next steps
 

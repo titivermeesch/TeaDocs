@@ -5,7 +5,7 @@ title: Sidebars
 
 # Sidebars
 
-TeaCore draws the scoreboard sidebar for every player. There are two kinds:
+TeaCore draws the scoreboard sidebar for every player, in the lobby and in matches:
 
 - **The lobby sidebar**: shown on lobby servers to players who are not in an arena. Layout in `plugins/TeaCore/sidebar.yml`.
 - **Game sidebars**: shown to players inside an arena. Each game ships its own layout in its own config (a `sidebar:` section). TeaCore renders it and fills in the values.
@@ -15,6 +15,8 @@ Sidebars refresh twice a second. All text is MiniMessage with the [theme tags](.
 ## The lobby sidebar
 
 TeaCore creates `plugins/TeaCore/sidebar.yml` on first start:
+
+![The lobby sidebar](/img/tea/lobby-sidebar.png)
 
 ```yaml
 lobby:
@@ -58,6 +60,8 @@ Edit the file and run `/tea reload` to apply changes. When a TeaCore update adds
 ## Game sidebars
 
 Each game decides what its sidebar looks like and ships a default layout in its own config file. The game's docs say which file. The layout has one list of lines per arena phase:
+
+![Fireball's sidebar during a match](/img/tea/game-sidebar.png)
 
 ```yaml
 sidebar:
@@ -103,6 +107,8 @@ Fallbacks when a list is missing:
 - `live` missing too: the sidebar is empty.
 
 The smallest working layout is a `title` and a `live` list.
+
+Spectators get the [spectator sidebar](./spectators.md#the-spectator-sidebar) during `starting` and `live`, unless the game's section has a `spectating` list, which they get instead.
 
 ### Built-in tags
 
@@ -168,7 +174,7 @@ Columns in a `@teams:` row (one row per team in the arena):
 | --- | --- |
 | `<team-name>` | Team name (coloured, translated) |
 | `<team-id>` | Team id, e.g. `red` |
-| `<team-size>` | Team members currently in the arena |
+| `<team-size>` | Team members in the arena |
 | `<team-score>` | Sum of the members' kills this match, unless the game provides its own score |
 
 All the normal built-in tags work in rows too. Games can add columns of their own and decide the row order (by default, rows follow join order). `@players:` and `@teams:` only work in game sidebars, not in the lobby sidebar.
@@ -186,6 +192,10 @@ live:
 ```
 
 PlaceholderAPI runs before TeaCore applies the theme tags, so placeholder output can contain MiniMessage tags.
+
+## Team colours on names
+
+In a team game, everyone in your arena has their name coloured by their team, above their head and in the tab list (red team in red, blue in blue, and so on). The colour comes from the team's colour in the game. TeaCore sets these colours on the same scoreboard as the sidebar, so a player who hides their sidebar with `/board` doesn't see the colours either.
 
 ## Turning sidebars off
 

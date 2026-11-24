@@ -5,9 +5,9 @@ title: Writing a kit
 
 # Writing a kit
 
-A **kit** is a named bundle of abilities that a player can select for a game. The player's selected kit is retrieved via `KitRegistry#selectedKit(Player, GameId)`; your game applies it when a match goes LIVE.
+A **kit** is a named bundle of abilities that a player can select for a game. You get the player's selected kit from `KitRegistry#selectedKit(Player, GameId)`, and your game applies it when a match goes LIVE.
 
-Kits are the right tool when your game's design is "pick a loadout, each loadout grants a set of ability triggers". If your mechanics are shaped differently (for example one ability per evolution stage, or one ability per class unlocked mid-match), look at [Writing an ability](./writing-an-ability.md) for the escape hatch.
+Use kits when your game's design is "pick a loadout, each loadout grants a set of ability triggers". If your mechanics work another way (for example one ability per evolution stage, or one ability per class unlocked mid-match), see [Writing an ability](./writing-an-ability.md) for how to skip kits.
 
 ## Kit fields
 
@@ -36,7 +36,7 @@ public record AbilityBinding(
 ) {}
 ```
 
-Cooldowns registered via `AbilityBinding.cooldownTicks` are automatically tracked by TeaCore's `CooldownService` - you don't manually manage them from your ability class unless you want to extend or cancel them.
+TeaCore's `CooldownService` tracks cooldowns set with `AbilityBinding.cooldownTicks`. You only touch them from your ability class if you want to extend or cancel them.
 
 `AbilityTrigger` values: `RIGHT_CLICK_ITEM`, `LEFT_CLICK_ITEM`, `SHIFT_PRESS`, `SHIFT_RELEASE`, `JUMP`, `DAMAGE_TAKEN`, `KILL`, `PASSIVE`.
 
@@ -76,7 +76,7 @@ public interface KitRegistry {
 }
 ```
 
-`selectedKit(Player, GameId)` returns the player's active kit, falling back to the first-registered kit for the game if none was explicitly chosen. Players change selection via `selectKit(Player, GameId, kitId)`.
+`selectedKit(Player, GameId)` returns the player's active kit, or the game's first-registered kit if the player hasn't chosen one. Players change selection with `selectKit(Player, GameId, kitId)`.
 
 Players pick a kit at runtime through TeaCore's kit picker. To show it from your game plugin, for example from a waiting-area menu item, open the `kits` menu for your game:
 
@@ -91,7 +91,7 @@ Players can also run `/kit <game>` (or `/kit` inside an arena) to open it, and `
 
 ## Applying a kit on match start
 
-TeaCore's arena lifecycle fires `ArenaStateChangeEvent` transitions for you, but it does not itself apply a kit. Games should listen for transitions into LIVE (or STARTING) and apply the selected kit's icon item plus any starting gear the game wants:
+TeaCore's arena lifecycle fires `ArenaStateChangeEvent` for you, but it doesn't apply kits. Your game listens for the transition into LIVE (or STARTING) and gives the player the selected kit's icon item plus any starting gear:
 
 ```java
 @EventHandler
@@ -110,7 +110,7 @@ public void onArenaState(ArenaStateChangeEvent event) {
 
 ## Passive kits (no ability bindings)
 
-Not every kit needs to grant an ability. If your design is "the kit is a passive perk - heal-on-kill, faster movement, extra max HP" then register a `Kit` with an empty `AbilityBinding` list and branch on `kitId()` in your controller:
+A kit doesn't need to grant an ability. If your kit is a passive perk (heal-on-kill, faster movement, extra max HP), register a `Kit` with an empty `AbilityBinding` list and branch on `kitId()` in your controller:
 
 ```java
 Kit kit = core.kits().selectedKit(player, MY_GAME).orElse(null);
@@ -119,4 +119,4 @@ if (kit != null && "quick_runner".equals(kit.kitId())) {
 }
 ```
 
-This pattern fits games where the real combat abilities come from somewhere else (a mid-match unlock, a transformed state, etc.) and the kit is just a named passive perk.
+This fits games where the combat abilities come from somewhere else (a mid-match unlock, a transformed state) and the kit is a named passive perk.

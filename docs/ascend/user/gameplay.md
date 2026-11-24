@@ -5,7 +5,7 @@ title: Gameplay
 
 # Gameplay
 
-Ascend is a free-for-all match where every player starts as the same basic mob and evolves their way up a ladder of increasingly dangerous forms. The first player to reach the apex stage **and** land one more kill + complete one more evolve ritual wins.
+Ascend is a free-for-all match. Every player starts as the same basic mob and evolves up a ladder of stronger forms. To win, you reach the apex stage **and** then land one more kill and complete one more evolve ritual.
 
 ## Core loop
 
@@ -14,31 +14,37 @@ Ascend is a free-for-all match where every player starts as the same basic mob a
 3. The [evolution ceremony](#evolution-ceremony) plays and your morph advances one stage.
 4. Repeat until you've climbed to the apex (Chicken by default), then get one more kill and one more evolve to win.
 
-The apex stage does **not** auto-win on arrival. Once at the apex, the player must land one more kill AND complete one more sneak-evolve ritual before the match ends. This keeps the final stretch contested instead of degenerating into a victory lap.
+![Players fighting in an Ascend arena](/img/ascend/fight.jpg)
+
+While you hold sneak, a ring of light closes in around you and your XP bar fills. Let go of sneak or leave the ground and the progress resets.
+
+![A player sneaking to evolve](/img/ascend/evolve.jpg)
+
+Reaching the apex stage does **not** win the match by itself. At the apex, you must land one more kill AND complete one more sneak-evolve ritual before the match ends, so the other players still get a chance to stop you.
 
 ## Player commands
 
-- `/play ascend` - join any available Ascend arena (queues if cross-server).
-- `/play ascend <mapId>` - queue for a specific map.
-- `/leave` - drop out of the current arena.
-- `/chat match | team | staff | global` - switch chat scope.
+- `/play ascend`: join any available Ascend arena (queues if cross-server).
+- `/play ascend <mapId>`: queue for a specific map.
+- `/leave`: leave the current arena.
+- `/chat match | team | staff | global`: switch chat scope.
 
-Kit selection happens through the in-game kit-selector GUI - right-click the Nether Star in the waiting area to open it.
+To pick a kit, right-click the Nether Star in the waiting area to open the kit selector.
 
 You can also queue by right-clicking a connection sign an admin has bound via `/tea lobby sign bind ascend [mapId]` (see the [Tea user guide](../../tea/user/configuring-network-mode.md) for sign/spawn admin details).
 
 ## Admin commands
 
-Arena and lobby admin commands are shipped by Tea - see the [Tea user guide](../../tea/user/configuring-network-mode.md). The ones you'll reach for most often with Ascend:
+Tea provides the arena and lobby admin commands. See the [Tea user guide](../../tea/user/configuring-network-mode.md). The ones you will use most with Ascend:
 
-- `/tea arena allocate ascend [map]` - force-allocate an arena (for testing).
-- `/tea arena start <arenaId>` - fast-forward the current WAITING/COUNTDOWN phase.
-- `/tea arena observe <arenaId>` - drop in as an invisible spectator.
-- `/tea lobby sign bind ascend [map]` - bind a connection sign to Ascend.
+- `/tea arena allocate ascend [map]`: force-allocate an arena (for testing).
+- `/tea arena start <arenaId>`: fast-forward the current WAITING/COUNTDOWN phase.
+- `/tea arena observe <arenaId>`: drop in as an invisible spectator.
+- `/tea lobby sign bind ascend [map]`: bind a connection sign to Ascend.
 
 ## Default ladder
 
-Ascend ships with 13 stage templates. 6 are on the default ladder; the other 7 are scaffolded but inactive - slot them into `stage-order:` in `plugins/Ascend/config.yml` to use them.
+Ascend ships with more stages than the default ladder uses. The extra ones are defined but inactive; add them to `stage-order:` in `plugins/Ascend/config.yml` to use them.
 
 | # | Stage | HP | Melee | Ability | Notes |
 | - | ----- | -- | ----- | ------- | ----- |
@@ -53,7 +59,9 @@ See [Configuration](./configuration.md) for how to edit, reorder, enable, or dis
 
 ## Abilities
 
-Each stage has exactly one ability. The full catalog of 14 shipped abilities:
+Each stage has one ability. The abilities that ship with Ascend:
+
+![A Blaze using Flamethrower](/img/ascend/flamethrower.jpg)
 
 | Id | Behavior |
 | -- | -------- |
@@ -61,8 +69,9 @@ Each stage has exactly one ability. The full catalog of 14 shipped abilities:
 | `slime_slam` | Mid-air ground-pound that deals AoE damage on landing (Slime). |
 | `sulphur_bomb` | Throwable coal projectile, detonates on impact or at max flight. Configurable radius/damage/knockback (Creeper). |
 | `web` | Fires a web projectile that slows on hit (Spider). |
-| `flamethrower` | Cone-shaped sustained stream, sets targets on fire. Fully tunable (Blaze). |
+| `flamethrower` | Cone-shaped sustained stream, sets targets on fire. Tunable (Blaze). |
 | `egg_blaster` | Chicken's egg projectile; detonates in AoE on hit. |
+| `fireball` | Slow fireball that bursts on contact, hurting and burning everyone nearby, without breaking blocks (Ghast). |
 | `blink` | Short teleport in aim direction (Enderman). |
 | `leap_rip` | Pounce + bleed damage (Wolf). |
 | `crossbow_volley` | Multi-arrow volley (Piglin). |
@@ -71,47 +80,50 @@ Each stage has exactly one ability. The full catalog of 14 shipped abilities:
 | `sonic_boom` | Line-AoE shockwave (Warden). |
 | `dive_bomb` | Aerial nosedive attack (Phantom). |
 
-Every ability is fully config-driven - cooldowns, damage, range, durations, knockback, fire ticks - tune them under `abilities.<id>:` in `plugins/Ascend/config.yml`. See [Configuration](./configuration.md) for the tunable values.
+You tune each ability's cooldowns, damage, range, durations, knockback and fire ticks under `abilities.<id>:` in `plugins/Ascend/config.yml`. See [Configuration](./configuration.md) for the tunable values.
 
 ## Kits
 
-Three kits ship with Ascend. A player's currently-selected kit is applied when they join a match. Kits are passive perks - none of them grants an ability (those come from the stage the player is currently on).
+Ascend ships with a few kits. A player gets their selected kit when they join a match. Kits give passive perks and no abilities; abilities come from the player's current stage.
 
-- **Darwinist** - iron sword icon. Balanced starter, no perks.
-- **Quick Evolver** - feather icon. Evolves in 2 seconds instead of 3.
-- **Health Harvester** - golden apple icon. Heals 4 HP on every kill.
+- **Darwinist**: iron sword icon. Balanced starter, no perks.
+- **Quick Evolver**: feather icon. Evolves in 2 seconds instead of 3.
+- **Health Harvester**: golden apple icon. Heals 4 HP on every kill.
 
-Right-click the Nether Star in the waiting area to open the kit-selector GUI and choose one. Selection persists per player across matches.
+Right-click the Nether Star in the waiting area to open the kit-selector GUI and choose one. Ascend remembers each player's choice across matches.
 
 ## Death flow
 
 When a player dies in Ascend:
 
-1. They're put in SPECTATOR mode for `game.death-spectator-seconds` (default 3).
+1. They go into SPECTATOR mode for `game.death-spectator-seconds` (default 3).
 2. If `game.devolve-on-death: true` (default), their stage drops by one (floor at 0).
-3. They're respawned at a participant spawn in the arena with the stage's loadout and HP.
+3. They respawn at a participant spawn in the arena with the stage's loadout and HP.
 
-Set `devolve-on-death: false` in `plugins/Ascend/config.yml` if you want pure kill-accumulation: dying never costs you progress.
+Set `devolve-on-death: false` in `plugins/Ascend/config.yml` so dying never costs progress.
 
 ## Evolution ceremony
 
-When a player evolves, they're whisked off to a private ceremony chamber instead of morphing in place:
+When a player evolves, Ascend moves them to a private ceremony chamber instead of morphing them in place:
 
-1. They're locked into spectator view of the map's ceremony stand.
+1. They are locked into spectator view of the map's ceremony stand.
 2. Their old morph stands in front of them, then dissolves in a particle + thunder burst.
 3. Their new morph appears.
-4. They're returned to a random participant spawn at the new stage.
+4. They return to a random participant spawn at the new stage.
 
-The ceremony is per-player - other people in the arena see nothing of what's happening, even when several players evolve at the same time.
+Each player sees only their own ceremony. Other people in the arena see none of it, even when several players evolve at the same time.
 
 See [Map authoring](./map-authoring.md) for how to place the ceremony chamber on a new map.
 
 ## Morphs
 
-In combat, players appear as their current stage's mob - opponents see and hit a Chicken, a Blaze, an Iron Golem, etc. Players see themselves in first-person as normal so the controls don't feel weird.
+In combat, players appear as their current stage's mob, so opponents see and hit a Chicken, a Blaze, an Iron Golem and so on. You see yourself in first person as normal, which keeps the controls usable.
+
+![A player disguised as an Iron Golem](/img/ascend/golem.jpg)
 
 ## Win condition, timeouts, and ties
 
-- First player to reach the apex stage and then land one more kill + evolve wins.
+- The first player to reach the apex stage and then land one more kill and evolve wins.
 - `game.max-match-seconds` (default 300) is a hard cap on the LIVE phase. When reached, the player with the highest stage wins; ties result in no winner and the match resets.
-- Admins can force-end by calling `/tea arena release <id>` (see [Tea troubleshooting](../../tea/user/troubleshooting.md)).
+- Staff can end a match from TeaCore's [arena manager](../../tea/user/arena-manager.md) (`/tea admin`), picking the winner or ending it as a draw. Chat announces the result and stats count it like a normal finish.
+- Admins can also tear an arena down with `/tea arena release <id>` (see [Tea troubleshooting](../../tea/user/troubleshooting.md)).

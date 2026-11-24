@@ -39,6 +39,8 @@ Fireball adds these subcommands to TeaCore's `/tea map` (permission `tea.map.adm
 | `/tea map cannon clear` | Remove all cannon points. |
 | `/tea map powerup` | Add a power-up drop point. |
 | `/tea map powerup clear` | Remove all power-up points. |
+| `/tea map shop` | Add a shopkeeper where you stand (facing your direction). |
+| `/tea map shop clear` | Remove all shopkeeper points. |
 
 ## TeaCore commands you will use
 

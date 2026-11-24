@@ -5,7 +5,7 @@ title: Writing an ability
 
 # Writing an ability
 
-An ability is a plain Java class implementing `me.playbosswar.tea.core.api.kit.Ability`. One instance is created per player by the factory you register; per-match state can live on fields, but persistent cross-match state should not.
+An ability is a plain Java class implementing `me.playbosswar.tea.core.api.kit.Ability`. The factory you register creates one instance per player. You can keep per-match state in fields, but keep state that outlives a match somewhere else.
 
 ## The Ability interface
 
@@ -49,7 +49,7 @@ public final class MyDashAbility implements Ability {
 
 ## AbilityContext
 
-What's available to the ability:
+The ability gets this context:
 
 ```java
 public interface AbilityContext {
@@ -61,43 +61,43 @@ public interface AbilityContext {
 }
 ```
 
-- `ctx.player()` - the player who triggered the ability.
-- `ctx.arena()` - the arena they're currently in.
-- `ctx.config()` - the per-binding YAML-wireable config.
-- `ctx.startCooldown(Duration)` - start (or override) the ability's cooldown; the binding's `cooldownTicks` is applied automatically after `onTrigger` returns if you don't call this.
-- `ctx.isOnCooldown()` - defensive check for re-entry.
+- `ctx.player()`: the player who triggered the ability.
+- `ctx.arena()`: the arena they're in.
+- `ctx.config()`: the per-binding config, which you can fill from YAML.
+- `ctx.startCooldown(Duration)`: start (or override) the ability's cooldown. If you don't call it, TeaCore applies the binding's `cooldownTicks` after `onTrigger` returns.
+- `ctx.isOnCooldown()`: a guard against re-entry.
 
-The caller (`AbilityTriggerListener`) has already verified that the arena is in `LIVE` state and that the player is a participant, so your ability body can focus on the mechanic itself.
+The caller (`AbilityTriggerListener`) has already checked that the arena is `LIVE` and the player is a participant, so your ability only needs the mechanic.
 
 ## Triggers
 
 `AbilityTrigger` enum values, mapped to Bukkit events:
 
-- `RIGHT_CLICK_ITEM`, `LEFT_CLICK_ITEM` - fired from `PlayerInteractEvent`.
-- `SHIFT_PRESS`, `SHIFT_RELEASE` - fired from `PlayerToggleSneakEvent`.
-- `JUMP` - reserved for future event wiring.
-- `DAMAGE_TAKEN` - fired on `EntityDamageEvent` where the entity is the player.
-- `KILL` - fired on `EntityDeathEvent` with the player as killer.
-- `PASSIVE` - never auto-fired; the ability owns its scheduling (e.g. periodic heal).
+- `RIGHT_CLICK_ITEM`, `LEFT_CLICK_ITEM`: fired from `PlayerInteractEvent`.
+- `SHIFT_PRESS`, `SHIFT_RELEASE`: fired from `PlayerToggleSneakEvent`.
+- `JUMP`: reserved for future event wiring.
+- `DAMAGE_TAKEN`: fired on `EntityDamageEvent` where the entity is the player.
+- `KILL`: fired on `EntityDeathEvent` with the player as killer.
+- `PASSIVE`: TeaCore never fires it; the ability schedules itself (e.g. periodic heal).
 
 ## YAML-driven tuning
 
-Keep the class stateless-across-matches and read all tuning from `ctx.config()`. The YAML side is `AbilityBinding.config`, which can come straight from a kits config file. This lets admins tune damage, heal amounts, and cooldowns without rebuilding the plugin.
+Keep no state across matches in the class and read all tuning from `ctx.config()`. The YAML side is `AbilityBinding.config`, which can come from a kits config file. Admins can then tune damage, heal amounts and cooldowns without rebuilding the plugin.
 
 ## Cooldown display
 
-The binding's `CooldownDisplay` determines where the player sees the remaining time:
+The binding's `CooldownDisplay` sets where the player sees the remaining time:
 
-- `XP_BAR` - hijacks the XP bar for the duration, restores to the player's actual XP on expiry/death/quit.
-- `ACTION_BAR` - tickable text above the hotbar.
-- `BOSS_BAR` - persistent bar at the top of the screen.
-- `NONE` - no visual feedback.
+- `XP_BAR`: takes over the XP bar for the duration and restores the player's own XP on expiry, death or quit.
+- `ACTION_BAR`: ticking text above the hotbar.
+- `BOSS_BAR`: a bar at the top of the screen.
+- `NONE`: no visual feedback.
 
 When a player has multiple cooldowns active with `XP_BAR` display, TeaCore shows the soonest-ending one and transitions to the next as each expires.
 
 ## Using CooldownService directly
 
-You can also drive cooldowns directly via `CooldownService` without going through `AbilityBinding` - useful when your game wires its own event dispatch:
+You can also call `CooldownService` without `AbilityBinding`, for example when your game dispatches its own events:
 
 ```java
 public interface CooldownService {
@@ -109,8 +109,8 @@ public interface CooldownService {
 }
 ```
 
-This is the pattern to use when you're dispatching abilities yourself rather than through the kit system. A typical convention is to share a single `CooldownService` across a family of abilities, keying each entry by `<gameId>.<ability-id>` and rendering into the action bar with a translated label.
+Use this when you dispatch abilities yourself instead of through the kit system. A common convention is to share one `CooldownService` across a family of abilities, key each entry by `<gameId>.<ability-id>`, and show it in the action bar with a translated label.
 
 ## Skipping the kit/ability API entirely
 
-If the "one ability belongs to a kit binding" shape doesn't fit your game, write your own Bukkit listener that dispatches directly to ability classes and call `CooldownService` manually. You lose automatic trigger wiring and kit integration, but you gain full control.
+If "one ability belongs to a kit binding" doesn't fit your game, write your own Bukkit listener that calls your ability classes, and call `CooldownService` yourself. You lose automatic trigger wiring and kit integration, and you control the whole flow.

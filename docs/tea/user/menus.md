@@ -16,14 +16,17 @@ TeaCore ships these menus in `plugins/TeaCore/menus/`:
 | `arenas.yml` | `arenas` | Live arenas button, right-click on a map | Live arenas of a game, or of one of its maps. Left-click to join, right-click to spectate. Refreshes every second. |
 | `profile.yml` | `profile` | `/profile`, the lobby Profile item, the head in `play` | Links to stats, achievements, match history and kits. |
 | `profile-kits.yml` | `profile-kits` | Kits button in `profile` | Pick a game, then open its `kits` menu. |
-| `achievements.yml` | `achievements` | Achievements button in `profile` | Achievements of every game, locked or unlocked. |
+| `achievements.yml` | `achievements` | Achievements button in `profile` | Achievements of every game, locked or unlocked. A server that doesn't run a game lists the achievements that game's servers saved to the database, named in their default language. |
 | `history.yml` | `history` | Match history button in `profile` | Your recent matches, newest first. See [Match history](./match-history.md). |
 | `kits.yml` | `kits` | `/kit <game>`, `/kit` inside an arena, games' kit items, `profile-kits` | Kits of one game. |
 | `stats.yml` | `stats` | `/stats [player]`, Stats button in `profile` | Core stats and per-game stats. |
+| `confirm.yml` | `confirm` | The `confirm` action | An "Are you sure?" question with Yes and No. |
+| `map-editor.yml` | `map-editor` | The checklist tool while editing a map | The map setup checklist. See [Editor tools](./adding-a-map.md#editor-tools). |
+| `admin.yml` and `admin-*.yml` | `admin`, `admin-arenas`, ... | `/tea admin` | The [arena manager](./arena-manager.md). |
 
 Every default menu has a Close button. Menus you reach from another menu also have a Back button.
 
-The play and profile menus show each game's name and icon. To change them, or to fill them in on a lobby server that does not run the game's plugin, see [Game names and icons](./lobby.md#game-display).
+The play and profile menus show each game's name and icon. To change them, or to fill them in on a lobby server that does not run the game's plugin, see [Game names and icons](./lobby.md#game-names-and-icons).
 
 Games can ship their own menu files in their own data folder (for example `plugins/MyGame/menus/shop.yml`). They use the same format. Check each game's docs for its menus and the values they offer.
 
@@ -46,6 +49,7 @@ A character that is not defined in `items` or `lists` (for example a space) is a
 | --- | --- | --- |
 | `enabled` | `true` | `false` turns this menu off. |
 | `permission` | none | Permission a player needs to open this menu, from any button, item, command or game. Empty or missing: anyone. |
+| `bedrock` | `true` | Bedrock players get this menu as a form. `false` gives them the chest instead. See [Bedrock players](#bedrock-players). |
 | `title` | `""` | Inventory title. Supports `{values}`, theme tags and `%papi%`. |
 | `rows` | `3` | Number of rows, 1 to 6. |
 | `refresh-ticks` | `0` | Re-render the menu every N ticks while it is open (`0` = never). Checked every 10 ticks, so use multiples of 10. |
@@ -72,9 +76,11 @@ These keys work for fixed items, for a list's `item` template, and for a list's 
 | `left-actions` | Actions for a left click only. |
 | `right-actions` | Actions for a right click only. |
 | `shift-actions` | Actions for a shift click only. |
+| `shift-left-actions` | Actions for shift + left click only. |
+| `shift-right-actions` | Actions for shift + right click only. |
 | `show-without-history` | For `back` buttons: show the button even when there is no previous menu. Default `false`. |
 
-When a player clicks, TeaCore runs `shift-actions` for a shift click, else `right-actions` for a right click, else `left-actions` for a left click. If that list is not set, it runs `action` + `actions`.
+When a player clicks, TeaCore runs `shift-left-actions` or `shift-right-actions` for a shift click on that side, else `shift-actions` for any shift click, else `right-actions` for a right click, else `left-actions` for a left click. If that list is not set, it runs `action` + `actions`.
 
 **True and false.** `glow` and `view-if` are false when the value is empty, `false`, `0`, `no`, or a `{placeholder}` that was not filled in. Anything else is true.
 
@@ -158,14 +164,14 @@ The `games` source gives one entry per game: every game registered on this serve
 | Value | Meaning |
 | --- | --- |
 | `{game_id}` | Game id |
-| `{game_name}` | Game name. From [`game-display`](./lobby.md#game-display), else the game's translation, else the id with a capital first letter. |
+| `{game_name}` | Game name. From [`game-display`](./lobby.md#game-names-and-icons), else the game's translation, else the id with a capital first letter. |
 | `{players}` | Players in this game's arenas, network-wide |
 | `{arenas}` | Arenas of this game, network-wide |
 | `{open_arenas}` | Arenas in `WAITING` or `COUNTDOWN` |
 | `{queue}` | Players in the queue for this game |
 | `{maps}` | Maps for this game on this server |
 
-The item is the game's icon (see [Game names and icons](./lobby.md#game-display)).
+The item is the game's icon (see [Game names and icons](./lobby.md#game-names-and-icons)).
 
 The `maps` source needs the `game` value and gives one entry per map of that game on this server:
 
@@ -233,6 +239,8 @@ The item shows the result: `LIME_DYE` win, `RED_DYE` loss, `GRAY_DYE` draw.
 | `arenas` | optional `game` and `map` values | One entry per live arena |
 | `achievements` | optional `game` and `target_uuid` values | One entry per achievement |
 | `match-history` | optional `target_uuid` value | One entry per recent match |
+| `map-editor-points`, `map-editor-info` | an open map draft | The rows of the map setup checklist |
+| `admin-games`, `admin-arenas`, `admin-arena`, `admin-players`, `admin-winners`, `admin-move-targets`, `admin-maps` | see the comments in each `admin-*.yml` | The arena manager's lists |
 
 Sources that supply their own item (`kits`, `games`, `maps`, `arenas`, `achievements`, `match-history`) ignore the template's `material`. `name`, `lore` and `glow` still apply.
 
@@ -258,10 +266,14 @@ Actions are written as `name` or `name:argument`. `{values}` in the argument are
 | `play:<game> [map]` | Closes the menu and runs `/play <game> [map]` for the player. | `play:{game} {map_id}` |
 | `join-arena:<id>` | Closes the menu and joins that arena. | `join-arena:{arena_uuid}` |
 | `spectate:<id>` | Closes the menu and spectates that arena. | `spectate:{arena_uuid}` |
+| `confirm:<question>\|<action>` | Opens the `confirm` menu with the question. Yes runs the action in the menu you came from; No goes back. If the `confirm` menu is turned off, the action runs at once. | `confirm:Kick {name}?\|admin-kick:{arena} {player}` |
+| `none` | Does nothing. Useful when a value decides the action, e.g. `left-actions: ["{left_action}"]`. | `none` |
 
 `join-arena` and `spectate` take the full id (`{arena_uuid}`) or the short one (`{arena_id}`). A player in the lobby can't enter an arena on another server, so these actions queue them for that arena's game and map instead. `play` runs `/play` as the player, so they need `tea.lobby.play`. See [Permissions](./permissions.md).
 
 TeaCore hides a `back` button when there is no previous menu (for example when the menu was opened with a command). Set `show-without-history: true` to show it anyway; it then closes the menu.
+
+The arena manager and the map editor have their own actions (`admin-start`, `admin-kick`, `editor-select`, ...). Each `admin-*.yml` and `map-editor.yml` lists the ones it uses in its comments; they check the same permissions as the menus.
 
 Games add actions of their own, usually prefixed with their id (`mygame:buy:...`). An unknown action does nothing, and TeaCore logs a warning in the console.
 
@@ -339,7 +351,7 @@ The `%vault_eco_balance_formatted%` line needs PlaceholderAPI with the Vault exp
 
 TeaCore loads any `.yml` file you put in `plugins/TeaCore/menus/` as a menu. Its id is the file name without `.yml` (`links.yml` is `links`).
 
-Players reach your menu from a button in another menu (`open-menu:<id>`), from a [lobby hotbar item](./lobby.md#lobby-hotbar) (`menu: <id>`), or with [`/menu <id>`](#menu-command).
+Players reach your menu from a button in another menu (`open-menu:<id>`), from a [lobby hotbar item](./lobby.md#lobby-hotbar) (`menu: <id>`), or with [`/menu <id>`](#opening-a-menu-by-command-menu).
 
 ### Menu ids
 
@@ -351,8 +363,7 @@ Players reach your menu from a button in another menu (`open-menu:<id>`), from a
 
 Use these ids with `open-menu:`.
 
-## Opening a menu by command: `/menu` {#menu-command}
-
+## Opening a menu by command: `/menu`
 ```
 /menu <id> [player]
 ```
@@ -364,6 +375,32 @@ Use these ids with `open-menu:`.
 - If the menu file sets `permission:`, the player who gets the menu needs it. A sender with `tea.menu.others` skips that check, so staff and the console can open a menu for anyone.
 
 The `stats` menu needs the target's stats, so open it with `/stats` rather than `/menu stats`.
+
+## Bedrock players
+With [Floodgate](https://geysermc.org/wiki/floodgate/) on the server, Bedrock players get each menu as a form, the button list Bedrock shows for server menus. You don't write anything extra: TeaCore builds the form from the same menu file.
+
+- Each item that does something on click becomes a button, in slot order (left to right, then top to bottom). Filler items with no action are left out.
+- The button shows the item's name. The form title is the menu title.
+- Paging, `back`, `refresh` and `open-menu` show the next form straight away. Any other button closes the form, the same as `close` in a chest.
+- If an item does different things per click (`left-actions`, `right-actions`, shift clicks), its button opens a second form with one button per click type and a Back button. The item's lore is the text of that form, so lore such as "Right click to pick a map" still guides the player.
+- `refresh-ticks` doesn't apply to forms.
+
+Set `bedrock: false` in a menu file to send Bedrock players the chest instead. Geyser shows chests to Bedrock players too, but they are harder to use on a phone.
+
+The button labels for click types come from `core.menu.bedrock` in the lang files:
+
+```yaml
+core:
+  menu:
+    bedrock:
+      left: "Select"
+      right: "Right click"
+      shift-left: "Shift + left click"
+      shift-right: "Shift + right click"
+      back: "Back"
+```
+
+Without Floodgate, every player gets chests and this section doesn't apply.
 
 ## Turning menus off
 

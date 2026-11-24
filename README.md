@@ -1,8 +1,8 @@
 # Tea Docs
 
-Public documentation site for the Tea minigames ecosystem (the TeaCore engine and the Ascend minigame). Built with [Docusaurus](https://docusaurus.io/).
+Public documentation site for the Tea minigames: the TeaCore engine and the games built on it, such as Ascend and Fireball. It uses [Docusaurus](https://docusaurus.io/).
 
-Deployed at `https://titivermeesch.github.io/TeaDocs/` by the `deploy.yml` workflow on every push to `main`.
+The `deploy.yml` workflow publishes it to `https://titivermeesch.github.io/TeaDocs/` on each push to `main`.
 
 ## Requirements
 
@@ -23,7 +23,7 @@ Start the dev server (hot reload):
 npm start
 ```
 
-Opens http://localhost:3000 with live-reload as you edit pages.
+It serves http://localhost:3000 and reloads as you edit pages.
 
 ## Build the static site
 
@@ -31,7 +31,7 @@ Opens http://localhost:3000 with live-reload as you edit pages.
 npm run build
 ```
 
-Output lives in `build/`. Preview locally with:
+The output goes to `build/`. Preview it locally with:
 
 ```
 npm run serve
@@ -39,8 +39,8 @@ npm run serve
 
 ## Adding a new page
 
-Drop a `.md` into the right subfolder under `docs/` and (optionally) reference it from `sidebars.ts`.
+Add a `.md` file to the right subfolder under `docs/`. You can also reference it from `sidebars.ts`.
 
 ## Cross-repo content policy
 
-This docs site describes public, installable behavior. It does **not** reference the source code of closed-source Tea projects (for example, Ascend's internal class names, package paths, or source files). If you're writing dev guidance that originally cited Ascend internals, phrase it generically as "your game plugin" and offer a pseudocode example instead.
+This site describes public, installable behavior. Keep source code of closed-source Tea projects out of it, such as Ascend's internal class names, package paths or source files. If you write dev guidance based on Ascend internals, say "your game plugin" and give a pseudocode example.

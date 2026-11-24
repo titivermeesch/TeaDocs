@@ -5,23 +5,29 @@ title: Network mode & deployment shapes
 
 # Network mode & deployment shapes
 
-TeaCore supports three deployment shapes. Pick the one that matches how you actually want to run your fleet, then copy the config block into `plugins/TeaCore/config.yml`.
+TeaCore supports three deployment shapes. Pick the one that matches how you run your servers, then copy the config block into `plugins/TeaCore/config.yml`.
 
-- [**Standalone**](#standalone) - one box runs lobby + games. No proxy needed.
-- [**Central**](#central) - proxy (BungeeCord or Velocity) + lobby + multiple arena servers. Leader balances allocations.
-- [**External**](#external) - one game per pod, external orchestrator (k8s HPA) owns scaling.
+* [**Standalone**](#standalone): one server runs lobby + games. No proxy needed.
+* [**Central**](#central): proxy (BungeeCord or Velocity) + lobby + multiple arena servers. Leader balances allocations.
+* [**External**](#external): one game per pod, external orchestrator (k8s HPA) owns scaling.
 
-Each shape is independent — you don't need to understand all three to run one. Pick yours and skim the others later.
+Running on Kubernetes or CloudNet? See [Running on Kubernetes](./kubernetes.md) and [Running on CloudNet](./cloudnet.md); both build on the central and external shapes below.
+
+
+
 
 ## Standalone
 
-**Use this when:** You're running a single Paper (or Spigot) server that hosts the lobby and the games together. No proxy, one JVM, one box. Most dev setups and small communities.
+**Use this when:** You're running a single Paper (or Spigot) server that hosts the lobby and the games together. No proxy, one JVM, one server.
+
 
 ### What happens
 
-- Players join the single server directly.
-- TeaCore uses an in-memory coordination backend (no Redis).
-- The arena pool runs locally on this one server and allocates new arenas up to `max-total`.
+* Players join the single server directly.
+* TeaCore uses in-memory coordination (no Redis needed).
+* The arena pool runs locally on this one server and allocates new arenas up to `max-total`.
+
+
 
 ### Config
 
@@ -49,20 +55,27 @@ arena-pool:
 ### Running
 
 1. Drop the `TeaCore` jar and each game jar into `plugins/`.
-2. Set `lobby.enabled: true` in `plugins/TeaCore/config.yml` (this single server hosts both the lobby UI and the arenas).
+2. Set `lobby.enabled: true` in `plugins/TeaCore/config.yml` (this single server hosts both the lobby and the arenas).
 3. Start the server. `/tea game list` should show every registered game.
 4. `/tea map create <game> <map>` to author your first map.
-5. `/play <game>` to join. Pool automatically spins arenas up to `max-total`.
+5. `/play <game>` to join. The pool opens arenas as needed, up to `max-total`.
+
+
+
+
+### Scaling up and down
+
+The pool keeps `min-available` joinable arenas per game. When more players queue than those arenas can take, it opens more, up to `max-total`. When the rush is over, arenas that have waited empty for `arena-pool.scale-down-idle-seconds` (default `60`) close again, down to `min-available`. The pool never closes an arena while players are queued for that game. Set it to `0` to keep extra arenas open. In central mode the lobby (the matchmaker leader) makes these decisions for the whole fleet.
 
 ## Central
+**Use this when:** You run a proxy (BungeeCord or Velocity) in front of a lobby server plus one or more arena servers. Each arena server hosts several arenas. When the fleet needs a new arena, TeaCore puts it on the least-loaded server.
 
-**Use this when:** You run a proxy (BungeeCord or Velocity) in front of a lobby server plus one or more arena servers. Multiple arenas per arena server. You want the fleet to self-balance — when a new arena is needed, it should land on the least-loaded server.
 
 ### What happens
 
 - Players connect via the proxy. The proxy sends them to the lobby first.
 - Every server (lobby included) publishes arena state and "hosted games" to Redis.
-- One lobby server holds the **matchmaker leader lock**. That server's `ArenaPoolManager` is the only one that actually makes allocation decisions.
+- One lobby server holds the **matchmaker leader lock**. Only that server's `ArenaPoolManager` makes allocation decisions.
 - When an allocation is needed, the leader looks at who hosts the game in question, picks the server with the fewest current arenas for that game, and sends an `ALLOCATE_ARENA` control command over Redis pub/sub. The target server creates the arena locally.
 - On match end, `/play <game>` re-joins through the lobby, which routes to whichever server has a free slot.
 
@@ -98,7 +111,7 @@ arena-pool:
   games:
     # In central mode, the LOBBY's arena-pool.games config is the single
     # source of truth for fleet-wide pool sizing. Arena servers don't need
-    # this section populated — they just declare themselves as hosts and
+    # this section populated; they just declare themselves as hosts and
     # accept ALLOCATE_ARENA control commands from the lobby. Put this block
     # on the lobby only, with one entry per game id you want auto-scaled.
     mygame:
@@ -111,30 +124,27 @@ arena-pool:
 ### Running
 
 1. Install the `TeaCore` jar + every game jar on every server.
-2. On the lobby server, set `lobby.enabled: true` in `plugins/TeaCore/config.yml`. Leave it `false` (the default) on arena servers. If the lobby doesn't run a game's plugin, set that game's name and icon with [`game-display`](./lobby.md#game-display) so the game selector shows them.
+2. On the lobby server, set `lobby.enabled: true` in `plugins/TeaCore/config.yml`. Leave it `false` (the default) on arena servers. If the lobby doesn't run a game's plugin, set that game's name and icon with [`game-display`](./lobby.md#game-names-and-icons) so the game selector shows them.
 3. Start Redis + MySQL.
 4. Start all servers. Each one registers its hosted games in Redis.
 5. Set `network.eligible-matchmaker: true` on the lobby and `false` on every arena server. Only eligible servers compete for the matchmaker leader lock and run the cluster-wide pool manager. The lobby's `arena-pool.games` config is then the only sizing source for the fleet.
-6. Copy your map data into each arena server's `plugins/TeaCore/maps/` directory. (Shared storage like NFS or S3 sync is the usual prod approach.)
+6. Build or copy your maps on any one server. They're stored in the database and every other server downloads them (see [Arena servers](./hosting.md)).
 7. `/play <game>` from the proxy joins a players-needed arena on whichever arena server has one.
 
-### Gotcha: maps must exist on each hosting server
+### Which server hosts what
 
-When the leader sends `ALLOCATE_ARENA` to arena-2, arena-2 reads its local `plugins/TeaCore/maps/` to find maps. If no maps are authored on that server, the allocation silently no-ops. Three options:
-
-- Author maps on every server.
-- Mount a shared volume at `plugins/TeaCore/maps/`.
-- Use an image layer that pre-bakes maps into every arena server.
+Every arena server hosts every installed game unless you limit it with `hosting.games`. See [Arena servers](./hosting.md) for that, for how arenas pick their map, and for keeping maps on each server's disk instead of the database (`maps.storage: files`).
 
 ## External
 
-**Use this when:** Kubernetes (or similar) boots a fresh pod per match. Each pod hosts exactly one arena, runs the match, then terminates. An external scaler (HPA on queue depth, or a custom controller) decides when to spawn more pods.
+**Use this when:** Kubernetes (or similar) boots a fresh server per match. Each server hosts one arena, runs the match, then stops. Your autoscaler decides when to start more servers. See [Running on Kubernetes](./kubernetes.md) for a full setup.
+
 
 ### What happens
 
-- TeaCore's pool manager is a no-op — it never allocates.
-- Each pod boots with `end-mode: SHUTDOWN`, so when the match ends the JVM exits and the pod dies.
-- Your orchestrator watches queue depth via Redis and scales the pod count up.
+- When the server starts, TeaCore opens one arena per installed game as soon as the maps have loaded (`arena-pool.games.<id>.preload-on-startup` raises that number). It never opens arenas on other servers.
+- With the game's `end-mode: SHUTDOWN`, the server stops when the match ends. With `end-mode: RESET`, it opens a new arena and keeps running.
+- Your autoscaler watches the queue (for example the `tea_queue_players` [metric](./metrics.md)) and adds servers.
 
 ### Config
 
@@ -165,7 +175,7 @@ arena-pool:
   # or standalone if the lobby is the only server; external only applies to arena pods.
 ```
 
-Per-game end mode (example — every game plugin exposes the same field in its own config):
+Per-game end mode (example; every game plugin exposes the same field in its own config):
 
 ```yaml
 # plugins/<YourGame>/config.yml
@@ -175,10 +185,10 @@ game:
 
 ### Running
 
-1. Build your pod image with TeaCore + game plugins + a single map baked in.
-2. Kubernetes deployment with `replicas: N` controlled by an HPA (queue-depth custom metric).
-3. Lobby runs normally. Queue-based routing still works — the lobby sees a new arena snapshot appear each time a pod boots and routes queued players into it.
-4. After match end, the pod terminates; k8s replaces it per the deployment's replica count.
+1. Build a server image with TeaCore, the game plugins and the maps inside.
+2. Run the arena servers as a StatefulSet, so each has a stable name the proxy can list, and scale its replicas on the queue length.
+3. The lobby runs normally. Each time an arena server starts, the lobby sees its arena and sends queued players to it.
+4. When the match ends, the server stops and Kubernetes restarts it with a fresh world.
 
 ## Reload
 
@@ -187,10 +197,10 @@ game:
 /tea lobby reload    # Reload connection signs + lobby spawn settings (the lobby UI inside TeaCore)
 ```
 
-Neither command reconnects Redis or the DB pool — restart the server for those.
+Neither command reconnects Redis or the DB pool. Restart the server for those.
 
 ## Also see
 
-- [Installing](./installing.md) — first-time setup for all three shapes.
+- [Installing](./installing.md): first-time setup for all three shapes.
 - [Lobby](./lobby.md): hotbar items, the game selector and game names on lobby servers.
-- [Arenas and pool internals](../dev/architecture.md) — how allocations + control commands work under the hood.
+- [Arenas and pool internals](../dev/architecture.md): how allocations + control commands work under the hood.

@@ -7,14 +7,27 @@ title: Configuration
 
 Fireball reads all game settings from `plugins/Fireball/config.yml`. This page lists every key, grouped the same way as the file, with its default.
 
-Restart the server after editing `config.yml`. `/tea reload` reloads the shop menu file (`menus/shop.yml`).
+## Changing settings in game
+
+Most of these settings can be changed without touching the file: open `/tea admin` and pick **Settings**, or use the **Settings** page of the web dashboard. A change is written into `config.yml` on every server that runs Fireball, and the rest of the file stays as it was.
+
+- Combat, throwing, blocks, fireball types, cannons, the shop, sudden death and power-ups take effect right away.
+- Match timings, the ammo mode and kits take effect from the next match.
+- The number of teams, players per team and the shopkeeper NPC need a restart.
+
+You can also edit kits there, including their gear: in game, **Copy from my inventory** fills a kit with the items you carry. Each kit has a **Name** and **Description**; leave them empty to use `fireball.kit.<id>.name` and `.desc` from the language file. A kit with neither shows its id written out, so `quick_shooter` reads "Quick Shooter".
+
+The sidebar layout, chest loot and team names are only in the file.
+
+## Editing the file
+
+Restart the server after editing `config.yml` by hand. `/tea reload` reloads the shop menu file (`menus/shop.yml`).
 
 When you upgrade Fireball, it adds new keys to your file and keeps your own values.
 
 Times ending in `-ms` are milliseconds (1000 = 1 second). Times ending in `-seconds` are seconds.
 
-## `lifecycle:` - phase timers
-
+## `lifecycle:` (phase timers)
 Fireball passes these to TeaCore, which runs the waiting room and countdown.
 
 ```yaml
@@ -36,8 +49,7 @@ lifecycle:
 | `title-countdown-threshold` | `10` | At or below this many seconds, the countdown shows as a big title. |
 | `chat-announce-at-seconds` | `[30, 15]` | Countdown values announced in chat (above the title threshold). |
 
-## `pool:` - warm arenas
-
+## `pool:` (warm arenas)
 How many Fireball arenas TeaCore keeps ready on this server.
 
 | Key | Default | What it does |
@@ -47,14 +59,13 @@ How many Fireball arenas TeaCore keeps ready on this server.
 | `pool.preload-on-startup` | `0` | Arenas to build when the server starts. |
 | `pool.scale-cooldown-seconds` | `10` | Minimum seconds between adding arenas. |
 
-## `game:` - core rules
-
+## `game:` (core rules)
 ```yaml
 game:
   max-match-seconds: 300
   end-mode: RESET
   respawn-protection-seconds: 4
-  respawn-delay-seconds: 2
+  respawn-delay-seconds: 3
   friendly-fire: false
   max-explosion-damage: 12.0
   fireball-max-lifetime-ms: 10000
@@ -65,7 +76,7 @@ game:
 | `max-match-seconds` | `300` | Match length. When it runs out, the team with the most kills wins. |
 | `end-mode` | `RESET` | What happens after a match. `RESET` resets the arena for the next match. `SHUTDOWN` stops the server (for setups that start a fresh server per match). |
 | `respawn-protection-seconds` | `4` | Seconds of protection after each spawn and at the start of the fight. Protected players ignore enemy hits and fireball effects. `0` turns it off. |
-| `respawn-delay-seconds` | `2` | Seconds a dead player spends as a spectator before respawning. |
+| `respawn-delay-seconds` | `3` | Seconds a dead player spends floating above where they died, with a "You died" countdown title, before respawning. |
 | `friendly-fire` | `false` | When `false`, fireballs, effects and melee never hurt or affect teammates. |
 | `max-explosion-damage` | `12.0` | Most damage one explosion can deal to a player, before armor. `20` is a full health bar. `0` means no cap. |
 | `fireball-max-lifetime-ms` | `10000` | Fireball removes thrown fireballs that have not hit anything after this long. `0` keeps them. |
@@ -73,6 +84,16 @@ game:
 Kill and assist credit use TeaCore's timing windows (`combat.kill-credit-window-ms` and `combat.assist-window-ms` in TeaCore's config). See [Kill credit](../../tea/user/kill-credit.md).
 
 Hunger is always off in Fireball matches. There is no key for it.
+
+## `blocks:` (building and explosion damage)
+| Key | Default | What it does |
+| --- | ------- | ------------ |
+| `blocks.explosion-damage` | `placed` | What fireball explosions break. `off`: nothing. `placed`: only blocks players placed this match. `all`: the map too, except the blocks below. |
+| `blocks.protect-radius` | `4` | With `all`, blocks this close to a team spawn never break. |
+| `blocks.never-break` | bedrock, barrier, chests, dispensers, beacons, end portal frames | With `all`, these block types never break. |
+| `blocks.wool-per-life` | `32` | Team-coloured wool each player gets on every spawn, for bridges and walls. `0` gives none. |
+
+Players can break blocks they placed by hand, but never the map's blocks. Broken blocks drop nothing. When a match changed any block, TeaCore rebuilds that arena from its schematic for the next match instead of reusing the world, so every match starts on an intact map.
 
 ## `sudden-death:`
 
@@ -111,8 +132,7 @@ Tags you can use:
 
 Turn the sidebar off with `enabled: false` here, per game in TeaCore (`features.games.fireball.sidebar`), or per player with `/board`. See [Optional features](../../tea/user/features.md).
 
-## `ammo:` - ammo model
-
+## `ammo:` (ammo model)
 ```yaml
 ammo:
   mode: items
@@ -127,7 +147,7 @@ ammo:
 | `ammo.heat.max` | `100.0` | Size of the heat bar. Players start full and refill to full on respawn. |
 | `ammo.heat.regen-per-second` | `20.0` | Heat refilled per second. |
 
-Each type sets its own heat cost with `heat-cost` (see [`fireballs:`](#fireballs---fireball-types)).
+Each type sets its own heat cost with `heat-cost` (see [`fireballs:`](#fireballs-fireball-types)).
 
 ## `fireball-jump:`
 
@@ -140,8 +160,7 @@ Your own fireball's blast launches you, even with friendly fire off.
 | `fireball-jump.self-damage` | `0.0` | Damage your own fireball jump deals to you. `0` = pure movement. |
 | `fireball-jump.no-fall-damage-ms` | `4000` | The first landing within this time after a fireball jump takes no fall damage. `0` = normal fall damage. |
 
-## `charge:` - charge throw
-
+## `charge:` (charge throw)
 Hold right-click to charge, let go to throw.
 
 | Key | Default | What it does |
@@ -153,6 +172,12 @@ Hold right-click to charge, let go to throw.
 | `charge.max-velocity-mult` | `2.25` | Speed multiplier at full charge. |
 
 About `release-gap-ms`: the Minecraft client does not tell the server when you let go of right-click with a fire charge. While you hold the button, it repeats the click every 200 ms. Fireball treats "no click for `release-gap-ms`" as letting go. Fireball raises values below 210 to 210, because anything at or under 200 would end every charge early. Raise it a little if players with high ping see throws fire before they let go.
+
+## `void-kill-depth`
+
+| Key | Default | What it does |
+| --- | ------- | ------------ |
+| `void-kill-depth` | `6` | A player who falls off the map dies this many blocks below the map's lowest block, instead of after the long fall to the world's void. |
 
 ## `deflection:`
 
@@ -184,17 +209,27 @@ Every map needs a spawn for each team: `teamspawn0` up to `teamspawn<count - 1>`
 ```yaml
 shop:
   enabled: true
+  villager: true
   currency-per-kill: 10
   currency-per-assist: 5
   prices:
+    basic: 5
     explosive: 30
-    meteor: 60
+    chain: 25
+    frost: 25
+    toxic: 25
+    homing: 30
+    lightning: 35
+    cluster: 35
+    void: 40
     singularity: 50
+    meteor: 60
 ```
 
 | Key | Default | What it does |
 | --- | ------- | ------------ |
-| `shop.enabled` | `true` | When `false`, players get no shop item and cannot buy. |
+| `shop.enabled` | `true` | When `false`, there is no shop. |
+| `shop.villager` | `true` | Shopkeeper villagers on the map (place them with `/tea map shop`; without points, one stands next to each team spawn). `false` gives every player a shop item in the last hotbar slot instead. |
 | `shop.currency-per-kill` | `10` | Coins for a kill. |
 | `shop.currency-per-assist` | `5` | Coins for an assist. |
 | `shop.prices.<type>` | see above | Price in coins for one fireball of that type. Types not listed cannot be bought. |
@@ -205,17 +240,16 @@ Coins last for one match. They are separate from the server economy.
 
 The shop's layout lives in `plugins/Fireball/menus/shop.yml`. It uses TeaCore's menu format (see [Menus](../../tea/user/menus.md)). The shop list (`source: "fireball:shop"`) gives one entry per item for sale. Each entry can use:
 
-- `{type}` - type id, for example `explosive`
-- `{name}` - the type's display name
-- `{price}` - its price
-- `{coins}` - the viewer's coins
-- `{affordable}` - `true` or `false`
+- `{type}`: type id, for example `explosive`
+- `{name}`: the type's display name
+- `{price}`: its price
+- `{coins}`: the viewer's coins
+- `{affordable}`: `true` or `false`
 
 The action `fireball:buy:{type}` buys one. Set `enabled: false` in the file, or turn off menus in TeaCore, and Fireball shows a simple built-in shop instead.
 
-## `fireballs:` - fireball types
-
-Each of the 11 types has its own block. Shared keys:
+## `fireballs:` (fireball types)
+Each type has its own block. Shared keys:
 
 | Key | What it does |
 | --- | ------------ |
@@ -223,6 +257,7 @@ Each of the 11 types has its own block. Shared keys:
 | `yield` | Explosion power on impact. Used by `basic`, `explosive`, `chain`, `cluster`, `homing` and `meteor` (for the falling meteor). |
 | `heat-cost` | Heat each throw costs in `heat` ammo mode. |
 | `cooldown-ms` | Wait before you can throw this type after your last throw. |
+| `color` | Colour of the type's particle trail and impact burst, as `"#RRGGBB"`. Each type has its own default. Turn all trails off with the top-level `fireball-trails: false`. |
 
 Defaults and extra keys per type:
 
@@ -274,8 +309,7 @@ Cannons on a map take their type in order from this list, and the list repeats. 
 
 Maps without power-up points get no drops.
 
-## `kits:` - starting loadouts
-
+## `kits:` (starting loadouts)
 Each entry under `kits:` is a kit. The key is the kit id.
 
 ```yaml
@@ -319,8 +353,7 @@ An item is either a material name (`IRON_SWORD`) or a map with these keys:
 | `lore` | `["&7Line"]` | Lore lines, `&` color codes. |
 | `fireball` | `explosive` | Kits only. Gives a fireball of this type instead of a material. |
 
-## `loot:` - chest loot
-
+## `loot:` (chest loot)
 Fireball clears and fills the chests marked on the map at the start of each match.
 
 ```yaml
@@ -344,6 +377,5 @@ Each entry takes the [item format](#item-format) above (except `slot` and `fireb
 
 The default table has bows, swords, armor, golden apples, arrows, ender pearls, fishing rods, water buckets, ladders, healing potions, and Explosive, Chain, Meteor and Singularity fireballs.
 
-## `lang/en_US.yml` - text
-
+## `lang/en_US.yml` (text)
 All player-facing text is in `plugins/Fireball/lang/en_US.yml`, as MiniMessage. Edit it to change wording, team names, fireball type names, kit names and achievement names. See [Theme and i18n](../../tea/user/theme-and-i18n.md).
