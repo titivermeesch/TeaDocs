@@ -32,6 +32,12 @@ Everything on this page also works with TeaCore's [editor tools](../../tea/user/
 
 Each type has its own marker colour: team spawns in the team's colour, chests brown, cannons grey, power-ups purple. Left-click a marker with the point tool to remove that point.
 
+![Editing a Fireball map: markers over the arena and the setup sidebar](/img/tea/map-editor.png)
+
+The checklist lists Fireball's point types next to TeaCore's own, with how many of each you placed.
+
+![The map setup checklist with Fireball's point types](/img/tea/map-checklist.png)
+
 ## Team spawns
 
 Each team has its own spawn command, numbered from 0. The number of teams comes from `teams.count` in `plugins/Fireball/config.yml` (default 2).

@@ -14,7 +14,7 @@ TeaCore does not store balances. The plugin that registers a Vault `Economy` ser
 - Vault (hard dep; comes with TeaCore's plugin resolution).
 - A Vault-compatible economy plugin. Common choices: **EssentialsX Economy**, **CMI**, **TNE (The New Economy)**, **XConomy**. Any plugin that registers a Vault `Economy` provider works.
 
-If Vault is installed but no economy provider is registered, TeaCore logs a warning on boot, `/tea economy` commands respond with "no economy provider," and kits with `cost > 0` show up in the picker as **[LOCKED]**.
+If Vault is installed but no economy provider is registered, TeaCore logs a warning on boot, `/tea economy` commands respond with "no economy provider," and kits with `cost > 0` can't be bought: the picker shows their cost in red with a balance of 0.
 
 ## Money commands
 
@@ -38,7 +38,9 @@ Games can attach a `cost` to their kits. A kit with `cost: 0` is free; a kit wit
 - **Free kit**: normal icon, normal name, description only.
 - **Priced kit they can afford**: normal icon, normal name, description + `Cost: 100 coins` line.
 - **Priced kit they already own**: normal icon, normal name, description + `Cost: 100 coins (owned)` in green.
-- **Priced kit they can't afford**: icon replaced with a red barrier, name prefixed `[LOCKED]`, description + `Cost: 100 coins (you have 30 coins)` in red. Clicking it only sends a chat message.
+- **Priced kit they can't afford**: icon replaced with a red barrier, description + `Cost: 100 coins (you have 30 coins)` in red. Clicking it only sends a chat message.
+
+![A priced kit the player can't afford yet](/img/tea/kit-locked.png)
 
 `/kit <game> <kit>` follows the same rules as a click on the kit in the picker. If the kit has a price and the player doesn't own it, TeaCore buys it first. If they can't pay, or no economy plugin is available, TeaCore doesn't select the kit.
 

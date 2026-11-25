@@ -12,6 +12,8 @@ Players get a few daily and weekly quests, such as "Win 2 matches" or "Get 10 ki
 - Progress counts matches finished, wins, kills and assists, in every game or one game. It counts on every server that shares the database.
 - A quest pays coins through your economy plugin (Vault), runs console commands, or both. Without an economy plugin, TeaCore skips coin rewards and still runs the commands.
 
+![The /quests menu](/img/tea/quests-menu.png)
+
 You can add, change and remove quests in game (`/tea admin`, then **Settings**, then **Quests**) or on the dashboard's Settings page, without editing the file. See [Changing settings](./settings.md).
 
 ## quests.yml

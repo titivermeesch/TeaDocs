@@ -9,6 +9,10 @@ Every cosmetic is an entry under `cosmetics:` in `plugins/TeaCosmetics/config.ym
 
 You can also add, price and change cosmetics in game under `/tea admin`, then **Settings**, or on the dashboard's **Settings** page. Changes there apply right away on every server that runs TeaCosmetics, with no reload or restart.
 
+Players open `/cosmetics`, pick a type, then buy or equip an entry.
+
+![The /cosmetics menu](/img/cosmetics/menu.png)
+
 ```yaml
 walk-trails-in-matches: true    # false: walk trails only in the lobby
 

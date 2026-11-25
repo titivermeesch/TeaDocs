@@ -15,11 +15,15 @@ With `features.spectator-tools` on (the default), spectators get these tools:
 - **Leave** (red bed, last slot). Runs `/leave`.
 - **Spectator sidebar.** While the match is live, spectators see the time left, each team's score, and the kills/deaths/assists of the player they watch.
 
+![A spectator with the teleporter, play again and leave items, and the spectator sidebar](/img/tea/spectator.jpg)
+
 Turn the tools off for every game with `features.spectator-tools: false`, or for one game with `features.games.<id>.spectator-tools: false`. Spectators then get the game's own spectator mode (usually vanilla spectator mode) and its normal sidebar.
 
 ## The teleporter menu
 
 The teleporter is a YAML menu, `plugins/TeaCore/menus/spectate.yml`. Change its look like any [menu](./menus.md). Each player entry has these values:
+
+![The teleporter menu](/img/tea/spectator-menu.png)
 
 | Value | Meaning |
 | --- | --- |

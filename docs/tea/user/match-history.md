@@ -53,7 +53,11 @@ When a match ends, every player gets their own summary in chat:
 - the MVP: the player with the most kills, then the most damage;
 - in ranked matches, their new rating and how much it changed.
 
+![The match recap in chat, with the MVP](/img/tea/match-recap.png)
+
 Turn it off with `features.match-recap: false`, for every game or one game (`features.games.<id>.match-recap`). Fireball shows its own shared scoreboard in chat when the recap is off. The dashboard's match page marks the MVP and shows each player's damage.
+
+![A match on the dashboard](/img/dashboard-match.png)
 
 ## Turning it off
 
@@ -81,6 +85,8 @@ Apart from the daily `keep-days` cleanup, TeaCore doesn't delete rows from these
 ## The history menu
 
 `plugins/TeaCore/menus/history.yml` shows a player's last 45 matches, newest first: result, game, map, kills, deaths, assists, length and how long ago. The result labels come from `core.history.win`, `core.history.loss`, `core.history.draw` and `core.history.left` in TeaCore's lang file. See [Menus](./menus.md#values-of-the-profile-menus) for every value you can use.
+
+![The match history menu](/img/tea/history-menu.png)
 
 ## Upgrading
 

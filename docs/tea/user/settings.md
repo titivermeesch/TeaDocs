@@ -43,6 +43,8 @@ Every change is logged in the console of each server, with who made it. TeaCore 
 
 `/tea admin`, then **Settings**, lists each plugin. Pick one, then a category. Each setting shows its current value and when it takes effect.
 
+![The in-game Settings menu, one item per plugin](/img/tea/settings-menu.png)
+
 | Setting type | Click | Does |
 | --- | --- | --- |
 | On/off | Any click | Switches it. |

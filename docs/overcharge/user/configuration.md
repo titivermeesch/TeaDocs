@@ -35,6 +35,8 @@ If you edit the file by hand, run `/tea reload` afterwards.
 | `stun-gun.slow-seconds` | `2` | How long a zapped player is slowed. |
 | `stun-gun.knock-loose` | `10` | Charge a zap knocks out of the target. |
 
+![A team station, where carriers crouch to charge the battery](/img/overcharge/station.png)
+
 ## Kits
 
 Each entry under `kits:` is a kit in TeaCore's kit picker:

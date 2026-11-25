@@ -18,6 +18,10 @@ Each NPC has an id, which is also its map command. While editing a map:
 
 For example, `/tea map shop` places a Fireball shopkeeper. One NPC stands on each point. A game can give an NPC default spots for maps without points; Fireball puts a shopkeeper next to each team spawn.
 
+| ![A Fireball shopkeeper next to the team spawn](/img/fireball/shop-npc.png) | ![The shop menu it opens](/img/fireball/shop-menu.png) |
+| --- | --- |
+| The shopkeeper | Right-click: the shop menu |
+
 ## Changing or adding NPCs
 
 Under `npcs` in `plugins/TeaCore/config.yml`, keyed by game and NPC id. Every key is optional.

@@ -77,6 +77,8 @@ The checklist menu shows:
 
 The eye button shows or hides the markers. The TNT button discards the draft (after you confirm).
 
+![The map setup checklist](/img/tea/map-checklist.png)
+
 To turn the tools and markers off, set `features.map-editor-tools: false` in `config.yml`. The commands below work either way.
 
 ## Workflow: creating a brand new map

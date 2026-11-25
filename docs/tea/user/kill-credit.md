@@ -17,6 +17,8 @@ When that player dies:
 2. **Assists**: every **other** enemy who hit them within `combat.assist-window-ms` (default 8 seconds) gets an assist.
 3. **Death**: the victim always gets a death, even when nobody gets the kill.
 
+![Kills and assists in the dashboard's kill feed](/img/dashboard-kill-feed.png)
+
 Then TeaCore clears the victim's hit history.
 
 Hits that count:

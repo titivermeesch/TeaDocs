@@ -53,6 +53,8 @@ When TeaCore makes the code, it records which dashboard permissions you have at 
 
 The login page also has **Use the admin token instead**, for when nobody can join the server.
 
+![The sign-in page](/img/dashboard-login.png)
+
 Scripts can call the API with `Authorization: Bearer <admin-token>`.
 
 ## Permissions
@@ -122,7 +124,9 @@ TeaCore writes every action to the console with the account that did it, for exa
 
 **Games.** Every game with its pool and lifecycle settings and its maps. Reload or delete maps here, download one or all of them as a zip, or upload a zip (see [Arena servers](./hosting.md#downloading-and-uploading-maps)). The clock button next to a map lists its [older versions](./adding-a-map.md#map-versions) and restores one.
 
-**Players.** Online players, and any player's profile by uuid: first and last seen, stats per game, their recent matches and their current win or loss streak.
+![The Games page with map download, upload and reload](/img/dashboard-games.png)
+
+**Players.** Online players, and any player's profile by uuid: first and last seen, stats per game, their recent matches and their current win or loss streak. Click a match to open it.
 
 ![A player's profile](/img/dashboard-players.png)
 
@@ -130,11 +134,19 @@ TeaCore writes every action to the console with the account that did it, for exa
 
 ![Match history](/img/dashboard-history.png)
 
+A match page lists every player with their team, result, kills, deaths, assists and damage, and marks the MVP.
+
+![One match with the MVP and each player's damage](/img/dashboard-match.png)
+
+**Leaderboard.** The top 100 ranked players of each game. See [Ranked play](./ranked.md).
+
 **Settings.** TeaCore, quest, game and cosmetic settings as forms, saved to every server that has them or to one group of servers, with a history of changes you can undo. Needs `tea.dashboard.settings`. See [Changing settings](./settings.md).
 
 ![The Settings page](/img/dashboard-settings.png)
 
 **Sessions.** Who is signed in, from where and until when. Sign any session out. Needs `tea.dashboard.sessions`.
+
+![The Sessions page](/img/dashboard-sessions.png)
 
 ## Match history retention
 

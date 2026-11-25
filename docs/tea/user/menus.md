@@ -26,6 +26,10 @@ TeaCore ships these menus in `plugins/TeaCore/menus/`:
 
 Every default menu has a Close button. Menus you reach from another menu also have a Back button.
 
+| ![The profile menu](/img/tea/profile-menu.png) | ![The stats menu](/img/tea/stats-menu.png) |
+| --- | --- |
+| `/profile` | `/stats` |
+
 The play and profile menus show each game's name and icon. To change them, or to fill them in on a lobby server that does not run the game's plugin, see [Game names and icons](./lobby.md#game-names-and-icons).
 
 Games can ship their own menu files in their own data folder (for example `plugins/MyGame/menus/shop.yml`). They use the same format. Check each game's docs for its menus and the values they offer.

@@ -72,7 +72,7 @@ On a laggy connection the gap between repeated clicks can exceed `charge.release
 - If no items show, check `shop.prices`: only listed types are sold, and disabled types are hidden.
 - If menus are turned off in TeaCore, or `menus/shop.yml` has `enabled: false`, Fireball opens a simple built-in shop instead. To get the YAML layout back, turn menus on and run `/tea reload`.
 
-## Kits show as [LOCKED] or cannot be bought
+## Kits show their cost in red or can't be bought
 
 Players buy kits with a `cost` above 0 from the server economy through Vault. You need a Vault economy plugin (EssentialsX Economy, CMI, ...). Without one, priced kits stay locked. Set `cost: 0` to make a kit free. See [Economy](../../tea/user/economy.md).
 

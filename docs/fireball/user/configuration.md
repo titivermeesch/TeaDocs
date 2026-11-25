@@ -248,6 +248,8 @@ The shop's layout lives in `plugins/Fireball/menus/shop.yml`. It uses TeaCore's 
 
 The action `fireball:buy:{type}` buys one. Set `enabled: false` in the file, or turn off menus in TeaCore, and Fireball shows a simple built-in shop instead.
 
+![The default shop menu](/img/fireball/shop-menu.png)
+
 ## `fireballs:` (fireball types)
 Each type has its own block. Shared keys:
 
@@ -310,7 +312,9 @@ Cannons on a map take their type in order from this list, and the list repeats. 
 Maps without power-up points get no drops.
 
 ## `kits:` (starting loadouts)
-Each entry under `kits:` is a kit. The key is the kit id.
+Each entry under `kits:` is a kit. The key is the kit id. Players pick one in the kit picker.
+
+![The kit picker with a priced kit](/img/tea/kit-locked.png)
 
 ```yaml
 kits:

@@ -36,6 +36,10 @@ Players see the change in chat at the end of the match, for example `+16 rating 
 
 The leaderboard menu is `plugins/TeaCore/menus/leaderboard.yml`. Each entry has `{rank}`, `{player}`, `{uuid}`, `{rating}`, `{games}`, `{wins}` and `{losses}`.
 
+![The /leaderboard menu](/img/tea/leaderboard-menu.png)
+
+![The Leaderboard page on the dashboard](/img/dashboard-leaderboard.png)
+
 ## Settings
 
 ```yaml
