@@ -98,4 +98,4 @@ Return an empty map when you have no rows for the player. The command then skips
 
 ## Connection pool notes
 
-Both `sqlite-jdbc` and `mysql-connector-j` ship unrelocated inside the shadow jar so their native libraries and `META-INF/services` entries keep working. If you depend on `core` as a shadow artifact, don't shade them yourself: the classes are already there.
+The server provides `sqlite-jdbc`. TeaCore downloads `mysql-connector-j` at startup when `database.type` is `mysql` and keeps it unrelocated, so its `META-INF/services` entries keep working. Don't shade either driver into a game plugin: use the `DataSource` TeaCore gives you.

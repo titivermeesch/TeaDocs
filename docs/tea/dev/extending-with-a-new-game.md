@@ -13,11 +13,11 @@ A Tea game is a standard Paper (or Spigot) plugin that declares `depend: [TeaCor
 name: MyGame
 version: '${version}'
 main: com.example.mygame.MyGamePlugin
-api-version: '1.13'
+api-version: '1.16'
 depend: [TeaCore]
 ```
 
-Keep `api-version` at `'1.13'`. A server refuses to load a plugin whose `api-version` is newer than the server itself, so `'1.21'` would lock out everything from 1.16.5 to 1.20. Servers older than 1.13 ignore the field. To run on every version TeaCore supports (1.8.8 to the latest), build against both server APIs and use `core.platform()` for anything version-specific: see [Supporting every version](./platform.md).
+Use `api-version: '1.16'`, like TeaCore. Servers from 1.13 to 1.15 then refuse the plugin with a clear "Unsupported API version" message instead of failing on Java 17 classes, and servers older than 1.13 ignore the field. A newer value such as `'1.21'` would lock out 1.16.5 to 1.20. Also check in `onEnable` that TeaCore is enabled before calling `TeaCoreAPI.get()`: on 1.16 to 1.16.4 TeaCore loads, sees the version isn't supported and disables itself. To run on every version TeaCore supports (1.8.8 to 1.12.2 and 1.16.5 to the latest), build against both server APIs and use `core.platform()` for anything version-specific: see [Supporting every version](./platform.md).
 
 If your game uses other plugins that must be present at enable time, add them to `depend:`. For example, a game that relies on LibsDisguises for mob morphs would declare `depend: [TeaCore, LibsDisguises]`.
 

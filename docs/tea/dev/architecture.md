@@ -5,7 +5,7 @@ title: Architecture
 
 # Architecture
 
-Tea is one Paper (or Spigot) plugin built with Gradle (Kotlin DSL) and shaded into a fat jar. It runs from 1.8.8 to 1.12.2 and 1.16.5 to the latest release: shared code compiles against both the 1.8.8 and the modern API, and version-specific code lives in two platforms picked at startup (see [Supporting every version](./platform.md)):
+Tea is one Paper (or Spigot) plugin built with Gradle (Kotlin DSL). Small libraries are shaded into the jar; the large ones are downloaded at startup (see [Libraries](#libraries)). It runs from 1.8.8 to 1.12.2 and 1.16.5 to the latest release: shared code compiles against both the 1.8.8 and the modern API, and version-specific code lives in two platforms picked at startup (see [Supporting every version](./platform.md)):
 
 - **TeaCore**: the engine. It holds the shared infrastructure, plus the hub-side lobby UI (`/play`, `/leave`, connection signs, lobby spawn / gamemode management) gated by `lobby.enabled` in `plugins/TeaCore/config.yml`.
 
@@ -78,7 +78,13 @@ TeaCore moves players between servers over the legacy `BungeeCord` plugin-messag
 
 `TeaCore` owns three tables: `tea_schema_versions` (the migration bookkeeping table), `tea_player_profile` (shared player profile), and `tea_lobby_signs` (connection-sign bindings, created by TeaCore's V003 migration). Every dependent plugin registers its own migrations at enable time. TeaCore's migration runner picks them up, applies anything new, and records the version in `tea_schema_versions(plugin_name, version)`. See [Persistence guide](./persistence-guide.md).
 
-Both `sqlite-jdbc` and `mysql-connector-j` stay unrelocated inside the shadow jar so their native libraries and service metadata still load.
+The server provides `sqlite-jdbc`. `mysql-connector-j` is downloaded only when `database.type` is `mysql` and stays unrelocated, so its service metadata still loads.
+
+## Libraries
+
+Adventure, XSeries, Caffeine, HikariCP, FastStats and Libby are shaded and relocated under `me.playbosswar.tea.core.libs`. The larger libraries are not in the jar: `LibraryLoader` uses [Libby](https://github.com/AlessioDP/libby) at the start of `onEnable` to download them from Maven Central into `plugins/TeaCore/libs/`, check their SHA-256, relocate them to the same `me.playbosswar.tea.core.libs` packages, and add them to the plugin class loader. Each group loads only when its feature is on: Jackson always, Lettuce and Netty when `network.mode` is not `standalone`, Javalin, Jetty and Kotlin when the dashboard is enabled, MySQL Connector/J for `database.type: mysql`.
+
+The build writes the list (coordinates, checksums and relocations) to `teacore-libraries.txt` from the `coreLibs`, `redisLibs`, `dashboardLibs` and `mysqlLibs` configurations, so bumping a version in `libs.versions.toml` updates it. Code that uses a downloaded library must not load while its feature is off: for example `DashboardServer` is only created when the dashboard is enabled.
 
 ## Theme and i18n
 

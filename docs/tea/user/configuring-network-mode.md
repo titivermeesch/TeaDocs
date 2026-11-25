@@ -137,7 +137,7 @@ Every arena server hosts every installed game unless you limit it with `hosting.
 
 ### Signed Redis messages
 
-Servers sign every command and event they send each other through Redis with a shared network secret, and drop messages that are unsigned, wrongly signed or more than two minutes old. You don't set the secret up: the first server to start generates one and stores it in the shared MySQL database, and the others read it from there. A server that drops a message logs `Dropped an unsigned or wrongly signed message`. That usually means it uses a different database from the rest, or its clock is off by minutes.
+Servers sign every command and event they send each other through Redis with a shared network secret, and drop messages that are unsigned, wrongly signed or more than two minutes old. Each message also carries a random ID, and a server drops a second copy of an ID it has already seen, so a captured message can't be sent again. You don't set the secret up: the first server to start generates one and stores it in the shared MySQL database, and the others read it from there. A server that drops a message logs `Dropped an unsigned or wrongly signed message`. That usually means it uses a different database from the rest, its clock is off by minutes, or it runs a different TeaCore version (update every server together).
 
 If your servers don't share a database, set the same `network.secret` on every server:
 

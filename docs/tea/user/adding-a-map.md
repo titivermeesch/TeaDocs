@@ -58,9 +58,6 @@ It defaults on each time you start a new authoring session. To turn it off serve
 **Choosing a point type.** The point tool places one kind of point at a time: participant spawns, the waiting spawn, or one of the specific game's own points. Its name shows the selected type and how many are placed. To pick another type, hold sneak and scroll, or sneak and right-click (sneak and left-click goes back). You can also pick a type in the checklist.
 
 Spawns placed with the tool face the direction you were looking.
-Spawns placed with the tool face the direction you were looking.
-
-Spawns placed with the tool face the direction you were looking.
 
 
 

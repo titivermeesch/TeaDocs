@@ -7,9 +7,17 @@ title: Troubleshooting
 
 This page covers problems with the Tea engine. For problems with one game, see that game's troubleshooting page.
 
+## "TeaCore could not download the libraries it needs"
+
+TeaCore downloads some libraries from Maven Central (`repo1.maven.org`) on first start and after upgrades (see [Libraries](./installing.md#libraries)). This error means the server couldn't reach it: no internet, a firewall, or a proxy that blocks it.
+
+The log lists each missing file with its URL and the path it belongs at under `plugins/TeaCore/libs/`. Either allow the server to reach Maven Central and restart, or download those files yourself, put each one at the path shown, and restart. Game plugins that depend on TeaCore stay disabled until TeaCore starts.
+
+If the log says a checksum doesn't match, the file in `plugins/TeaCore/libs/` is damaged or a different version. TeaCore deletes it and downloads it again.
+
 ## TeaCore fails to start with UnsatisfiedLinkError on SQLite
 
-SQLite-JDBC has no native library for your platform. Switch to MySQL in `config.yml` or use a supported OS/architecture (most Linux + glibc, Windows, and macOS x64/arm64 variants work). TeaCore leaves the SQLite native library unrelocated inside the shadow jar so it loads the correct binary.
+SQLite-JDBC has no native library for your platform. Switch to MySQL in `config.yml` or use a supported OS/architecture (most Linux + glibc, Windows, and macOS x64/arm64 variants work).
 
 
 ## Lobby commands (`/play`, `/tea lobby`) report "Unknown command" or do nothing

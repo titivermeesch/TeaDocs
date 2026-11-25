@@ -15,7 +15,7 @@ The dashboard is off by default. Turn it on for one server only, usually the lob
 # plugins/TeaCore/config.yml
 dashboard:
   enabled: true
-  bind-address: "0.0.0.0"   # "127.0.0.1" if a reverse proxy sits in front
+  bind-address: "127.0.0.1"
   port: 8080
   public-url: "https://dash.example.com"
   admin-token: ""
@@ -24,9 +24,23 @@ dashboard:
 | Key | Meaning |
 | --- | --- |
 | `enabled` | Starts the dashboard on this server. Restart to apply. |
-| `bind-address`, `port` | Where it listens. One port carries the pages, the API and the live feed. |
+| `bind-address`, `port` | Where it listens. One port carries the pages, the API and the live feed. The default `127.0.0.1` only accepts connections from the same machine. See [Opening it to other machines](#opening-it-to-other-machines). |
 | `public-url` | The address people open the dashboard at. TeaCore puts it in the login link players get in game. Set it on **every** server, since players can run `/dashboard` from any of them. Without it, players get a code to type instead of a link. |
 | `admin-token` | A break-glass login with every permission, and the Bearer token for scripts. TeaCore fills in a random one on first boot. Set it to `off` to turn token login off. |
+
+### Opening it to other machines
+
+By default the dashboard listens on `127.0.0.1`, so only the machine running the server can open it. To reach it from elsewhere, pick one:
+
+- **Reverse proxy (recommended).** Keep `bind-address: "127.0.0.1"` and point nginx or Caddy at `http://127.0.0.1:8080`. The proxy handles HTTPS and is the only thing exposed. For example, with Caddy:
+
+  ```
+  dash.example.com {
+      reverse_proxy 127.0.0.1:8080
+  }
+  ```
+
+- **Listen on every interface.** Set `bind-address: "0.0.0.0"` and open the port in your firewall. Use this inside a private network, or when the server runs in Docker and you publish the port (inside a container, `127.0.0.1` is not reachable from the host). Traffic is plain HTTP unless something in front adds HTTPS.
 
 ## Signing in
 
@@ -139,7 +153,7 @@ On a network (`central` or `external` mode) the dashboard reads every server's a
 
 ## Security
 
-- Put the dashboard behind HTTPS on any public network. Bind it to `127.0.0.1` and let a reverse proxy (nginx, Caddy) handle TLS. The session cookie is marked `Secure` when the proxy sends `X-Forwarded-Proto: https`.
+- Put the dashboard behind HTTPS on any public network. Keep the default `127.0.0.1` bind and let a reverse proxy (nginx, Caddy) handle TLS. The session cookie is marked `Secure` when the proxy sends `X-Forwarded-Proto: https`.
 - The session cookie is `HttpOnly` and `SameSite=Strict`, so page scripts can't read it and other sites can't use it.
 - After 30 failed sign-ins from one address in a minute, TeaCore refuses more until the minute is over. Successful sign-ins never count.
 - Treat the admin token like a password, or set `admin-token: off` once your staff sign in with `/dashboard`.
