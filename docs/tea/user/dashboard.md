@@ -143,6 +143,7 @@ On a network (`central` or `external` mode) the dashboard reads every server's a
 - The session cookie is `HttpOnly` and `SameSite=Strict`, so page scripts can't read it and other sites can't use it.
 - After 30 failed sign-ins from one address in a minute, TeaCore refuses more until the minute is over. Successful sign-ins never count.
 - Treat the admin token like a password, or set `admin-token: off` once your staff sign in with `/dashboard`.
+- Requests may carry a body of up to 64 KB, and must state its size (`Content-Length`). Only a map upload from someone signed in with `tea.dashboard.maps.transfer` may send up to 300 MB. Larger requests get `413`.
 
 ## Endpoints
 

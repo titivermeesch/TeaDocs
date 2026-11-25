@@ -5,7 +5,7 @@ title: Getting started
 
 # Getting started
 
-Tea is a single-plugin engine for running Minecraft minigames on Paper (or Spigot), from 1.8.8 to the latest release:
+Tea is a single-plugin engine for running Minecraft minigames on Paper (or Spigot), from 1.8.8 to 1.12.2 and 1.16.5 to the latest release:
 
 - **TeaCore**: the engine. Every server that runs a game needs it.
 - **Lobby features** (connection signs, `/play` and the game selector, `/profile`, the lobby hotbar, `/leave`, lobby spawn / gamemode management) ship inside TeaCore. Turn them on with `lobby.enabled: true` in `plugins/TeaCore/config.yml`. Set this on every hub server; leave it off (the default) on arena-only servers.
@@ -14,9 +14,9 @@ Games are separate plugin jars on top of Tea. This section covers installing and
 
 ## Minimum requirements
 
-- Minecraft 1.8.8 or newer: Paper (or Spigot) or a fork such as Purpur. See [Server versions](./server-versions.md).
+- Minecraft 1.8.8 to 1.12.2, or 1.16.5 or newer: Paper (or Spigot) or a fork such as Purpur. See [Server versions](./server-versions.md).
 - Java 17 or newer
-- On 1.13 and newer: WorldEdit or FastAsyncWorldEdit to save and paste maps (soft dependency, not bundled). 1.8 to 1.12 servers don't need it.
+- On 1.16.5 and newer: WorldEdit or FastAsyncWorldEdit to save and paste maps (soft dependency, not bundled). 1.8 to 1.12 servers don't need it.
 - Redis (optional, needed for cross-server matchmaking)
 - MySQL (optional, SQLite is the default)
 

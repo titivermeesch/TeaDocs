@@ -26,7 +26,7 @@ The named game isn't registered on this server. In a split lobby/arena deploymen
 
 TeaCore isn't pasting the schematic. Check:
 
-1. On 1.13 and newer: WorldEdit or FastAsyncWorldEdit is installed and enabled (1.8 to 1.12 doesn't need it).
+1. On 1.16.5 and newer: WorldEdit or FastAsyncWorldEdit is installed and enabled (1.8 to 1.12 doesn't need it).
 2. The map has a schematic: `/tea map info <game> <map>` should show a schematic path.
 3. The schematic file exists at `plugins/TeaCore/maps/schems/<mapId>.schem` (or `.schematic`).
 
@@ -48,7 +48,7 @@ The edit world exists, but TeaCore can't paste the saved schematic. Causes:
 
 - Someone deleted the schematic file from `plugins/TeaCore/maps/schems/`.
 - Someone saved the schematic on a different Minecraft version with incompatible block IDs. A `.schem` from a modern server can't be pasted on 1.8 to 1.12; a `.schematic` works everywhere. Re-run `/tea map create` and build fresh, or replace the file with one made for this version.
-- On 1.13 and newer: WorldEdit isn't loaded.
+- On 1.16.5 and newer: WorldEdit isn't loaded.
 
 ## Redis connection refused
 

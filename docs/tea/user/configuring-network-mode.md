@@ -135,6 +135,17 @@ arena-pool:
 
 Every arena server hosts every installed game unless you limit it with `hosting.games`. See [Arena servers](./hosting.md) for that, for how arenas pick their map, and for keeping maps on each server's disk instead of the database (`maps.storage: files`).
 
+### Signed Redis messages
+
+Servers sign every command and event they send each other through Redis with a shared network secret, and drop messages that are unsigned, wrongly signed or more than two minutes old. You don't set the secret up: the first server to start generates one and stores it in the shared MySQL database, and the others read it from there. A server that drops a message logs `Dropped an unsigned or wrongly signed message`. That usually means it uses a different database from the rest, or its clock is off by minutes.
+
+If your servers don't share a database, set the same `network.secret` on every server:
+
+```yaml
+network:
+  secret: "a long random string"
+```
+
 ## External
 
 **Use this when:** Kubernetes (or similar) boots a fresh server per match. Each server hosts one arena, runs the match, then stops. Your autoscaler decides when to start more servers. See [Running on Kubernetes](./kubernetes.md) for a full setup.

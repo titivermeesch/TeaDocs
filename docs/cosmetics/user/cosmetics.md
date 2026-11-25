@@ -7,7 +7,7 @@ title: The cosmetics
 
 These are the cosmetics TeaCosmetics ships with. Change them, or add your own, in [Configuration](./configuration.md).
 
-Players open `/cosmetics`, pick a type, and click a cosmetic to buy or wear it. Right-clicking a cosmetic in that menu, or running `/cosmetics preview <id>`, shows it without buying it: projectile trails on a thrown snowball, walk trails circling you, and kill and win effects three times in front of you.
+Players open `/cosmetics`, pick a type, and click a cosmetic to buy or wear it. Right-clicking a cosmetic in that menu, or running `/cosmetics preview <id>`, shows it without buying it: projectile trails on a thrown snowball, walk trails circling you, and kill and win effects three times in front of you. Previews work in the lobby and in a waiting arena, not during a match. Victory dances never launch or spin a player while a match is running.
 
 ![The /cosmetics menu](/img/cosmetics/menu.png)
 
@@ -87,7 +87,7 @@ Plays when you or your team wins, next to your win effect.
 | Command | Permission | What it does |
 | --- | --- | --- |
 | `/cosmetics` | `teacosmetics.use` | Opens the menu. |
-| `/cosmetics preview <id>` | `teacosmetics.use` | Shows a cosmetic without wearing it. Once every 2 seconds. |
+| `/cosmetics preview <id>` | `teacosmetics.use` | Shows a cosmetic without wearing it. Once every 2 seconds. Not available once a match has started. |
 | `/cosmetics equip <player> <id>` | `teacosmetics.admin` | Puts a cosmetic on an online player, without buying it. `none` takes everything off. |
 | `/cosmetics reload` | `teacosmetics.admin` | Reloads the config. |
 

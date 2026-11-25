@@ -7,7 +7,7 @@ title: Installing
 
 ## Requirements
 
-- Paper (or Spigot) **1.8.8 to the latest release**. See [Server versions](../../tea/user/server-versions.md).
+- Paper (or Spigot) **1.8.8 to 1.12.2 and 1.16.5 to the latest release**. See [Server versions](../../tea/user/server-versions.md).
 - TeaCore 0.2.0 or newer, set up as in the [TeaCore install guide](../../tea/user/installing.md).
 - WorldEdit or FastAsyncWorldEdit, so TeaCore can paste the map.
 

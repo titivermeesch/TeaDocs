@@ -20,7 +20,7 @@ Any game plugin built on Tea requires the TeaCore plugin. Game plugins can add t
 
 
 
-WorldEdit or FastAsyncWorldEdit is a soft dependency of TeaCore. On 1.13 and newer you need it for map authoring (`/tea map create`, `/tea map edit`) and for pasting maps into arenas. Nothing else needs it. On 1.8 to 1.12 TeaCore saves and pastes maps itself, so you don't need it there. See [Server versions](./server-versions.md).
+WorldEdit or FastAsyncWorldEdit is a soft dependency of TeaCore. On 1.16.5 and newer you need it for map authoring (`/tea map create`, `/tea map edit`) and for pasting maps into arenas. Nothing else needs it. On 1.8 to 1.12 TeaCore saves and pastes maps itself, so you don't need it there. See [Server versions](./server-versions.md).
 
 
 Floodgate is a soft dependency too. With it on a server, Bedrock players get [menus as forms](./menus.md#bedrock-players).

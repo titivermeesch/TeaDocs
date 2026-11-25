@@ -72,7 +72,7 @@ Each stage has one ability. The abilities that ship with Ascend:
 | `flamethrower` | Cone-shaped sustained stream, sets targets on fire. Tunable (Blaze). |
 | `egg_blaster` | Chicken's egg projectile; detonates in AoE on hit. |
 | `fireball` | Slow fireball that bursts on contact, hurting and burning everyone nearby, without breaking blocks (Ghast). |
-| `blink` | Short teleport in aim direction (Enderman). |
+| `blink` | Short teleport in aim direction (Enderman). Lands on the furthest spot with ground and room to stand before any wall; does nothing if there is none. |
 | `leap_rip` | Pounce + bleed damage (Wolf). |
 | `crossbow_volley` | Multi-arrow volley (Piglin). |
 | `soul_slash` | Withering cleave (Wither Skeleton). |

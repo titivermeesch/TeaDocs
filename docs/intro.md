@@ -6,7 +6,7 @@ title: Tea
 
 # Tea
 
-Tea is a reusable Minecraft minigames engine and the games built on top of it, targeting Paper (or Spigot) from 1.8.8 to the latest release. See [Server versions](./tea/user/server-versions.md).
+Tea is a reusable Minecraft minigames engine and the games built on top of it, targeting Paper (or Spigot) from 1.8.8 to 1.12.2 and 1.16.5 to the latest release. See [Server versions](./tea/user/server-versions.md).
 
 Pick the section that matches what you're doing:
 

@@ -7,7 +7,7 @@ title: Authoring a map
 
 You author Tea maps with `/tea map ...` commands. Each authoring session runs in a temporary void world: TeaCore creates it on `create`, pastes your schematic into it on `edit`, and deletes it on `save` or `discard`. TeaCore stores spawn positions as offsets from the region's min-corner, so spawns land in the right place when the map is pasted into an arena world.
 
-On 1.13 and newer, you need WorldEdit or FastAsyncWorldEdit installed to save maps (TeaCore uses it as a soft dependency and does not bundle it). On 1.8 to 1.12 TeaCore saves maps itself. In both cases TeaCore does the save, so you do not need to run `//schem save`. TeaCore saves maps as `.schem` on modern servers and `.schematic` on 1.8 to 1.12 (see [Server versions](./server-versions.md#maps)).
+On 1.16.5 and newer, you need WorldEdit or FastAsyncWorldEdit installed to save maps (TeaCore uses it as a soft dependency and does not bundle it). On 1.8 to 1.12 TeaCore saves maps itself. In both cases TeaCore does the save, so you do not need to run `//schem save`. TeaCore saves maps as `.schem` on modern servers and `.schematic` on 1.8 to 1.12 (see [Server versions](./server-versions.md#maps)).
 
 Every game built on Tea uses this authoring flow. Games add their own `/tea map` subcommands through the map-extension registry; each game's map-authoring page lists them.
 

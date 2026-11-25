@@ -5,7 +5,7 @@ title: Server versions
 
 # Server versions
 
-TeaCore and the games built on it run on **Minecraft 1.8.8 up to the latest release**, all from the same plugin jars. TeaCore detects the version at startup and logs it:
+TeaCore and the games built on it run on **Minecraft 1.8.8 to 1.12.2, and 1.16.5 up to the latest release**, all from the same plugin jars. TeaCore detects the version at startup and logs it:
 
 ```
 [TeaCore] Platform: legacy (Minecraft 1.8.8)
@@ -16,9 +16,13 @@ TeaCore and the games built on it run on **Minecraft 1.8.8 up to the latest rele
 
 | Plugin | Versions |
 | ------ | -------- |
-| TeaCore | 1.8.8 to latest |
-| Fireball, Overcharge, TeaCosmetics | 1.8.8 to latest |
-| Ascend | 1.8.8 to latest, with a [LibsDisguises](https://www.spigotmc.org/resources/libs-disguises-free.81/) build for your server version |
+| TeaCore | 1.8.8 to 1.12.2, 1.16.5 to latest |
+| Fireball, Overcharge, TeaCosmetics | 1.8.8 to 1.12.2, 1.16.5 to latest |
+| Ascend | 1.8.8 to 1.12.2, 1.16.5 to latest, with a [LibsDisguises](https://www.spigotmc.org/resources/libs-disguises-free.81/) build for your server version |
+
+## 1.13 to 1.16.4
+
+These versions can't load Tea. From 1.13, the server rewrites every plugin class as it loads, and on 1.13 to 1.15 the library that does this can't read Java 17 classes. The server stops TeaCore with `Unsupported class file major version 61` before any of its code runs. Update to 1.16.5 or newer, or stay on 1.12.2 or older.
 
 On versions that lack a mob or item, the games use the closest one: Ascend's Warden stage becomes a Wither on 1.8, the Phantom a Bat, the Piglin a Zombie Pigman; Overcharge's energy cells are prismarine crystals instead of amethyst shards.
 
@@ -28,9 +32,12 @@ On versions that lack a mob or item, the games use the closest one: Ascend's War
 | --------- | --------------- | ---- |
 | 1.20.5 and newer | Paper (or Spigot), or a fork such as Purpur | 21 or newer, as Minecraft requires |
 | 1.17 to 1.20.4 | Paper (or Spigot) | 17 or newer |
-| 1.8.8 to 1.16.5 | Paper (or Spigot), or a fork | 17 or newer |
+| 1.16.5 | Paper (or Spigot) | 17 or newer |
+| 1.8.8 to 1.12.2 | Paper (or Spigot), or a fork | 17 or newer |
 
 Every Tea jar needs Java 17 or newer, including on 1.8.8. Older Minecraft versions were made for Java 8, so on 1.8.8 pick server software that runs on Java 17.
+
+On Paper 1.16.5, add `-DPaper.IgnoreJavaVersion=true` to the start command so it accepts Java 17. If you use FastAsyncWorldEdit there, use a build made for 1.16.5 (2.4.x): newer FAWE builds crash while pasting maps on 1.16.5.
 
 ## 1.8.8 on Java 17
 
@@ -67,7 +74,7 @@ Config and menu files name items, sounds, particles and potion effects by their 
 
 ## Maps
 
-| | 1.13 and newer | 1.8 to 1.12 |
+| | 1.16.5 and newer | 1.8 to 1.12 |
 | --- | --- | --- |
 | Map file | `<map>.schem` (Sponge format) | `<map>.schematic` (MCEdit format) |
 | WorldEdit / FAWE | Needed to save and paste maps | Not needed: TeaCore reads and writes `.schematic` itself |

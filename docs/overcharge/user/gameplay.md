@@ -18,7 +18,7 @@ title: Gameplay
 
 ![A team station](/img/overcharge/station.png)
 
-If time runs out (10 minutes), the fullest battery wins. On a tie the match goes to overtime: the next team to deliver any charge wins.
+If time runs out (10 minutes), the fullest battery wins. On a tie the match goes to overtime (up to 2 minutes): the first of the tied teams to pull ahead wins. Other teams can still deliver charge, but they can't win overtime unless they fill their battery. If overtime runs out, the fullest battery wins, or the match ends in a draw if the lead is still tied.
 
 ## Carrying and dying
 

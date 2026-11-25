@@ -5,7 +5,7 @@ title: Supporting every version (platform API)
 
 # Supporting every version
 
-TeaCore runs on 1.8.8 through the latest release. A game does too, as long as it doesn't call version-specific Bukkit API directly. Anything that differs between versions goes through `TeaCoreAPI.get().platform()`:
+TeaCore runs on 1.8.8 to 1.12.2 and 1.16.5 to the latest release. A game does too, as long as it doesn't call version-specific Bukkit API directly. Anything that differs between versions goes through `TeaCoreAPI.get().platform()`:
 
 ```java
 Platform p = core.platform();

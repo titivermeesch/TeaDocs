@@ -18,6 +18,7 @@ If you edit the file by hand, run `/tea reload` afterwards.
 | `teams.max-size` | `6` | Players per team. |
 | `game.battery-target` | `100` | Charge a battery needs to win. |
 | `game.max-match-seconds` | `600` | Match length before the fullest battery wins. |
+| `game.overtime-seconds` | `120` | Longest overtime after a tie. Then the fullest battery wins, or the match is a draw. `0` calls a tie a draw straight away. |
 | `game.respawn-delay-seconds` | `3` | Time dead before you respawn. |
 | `game.respawn-protection-seconds` | `3` | Time you can't be hurt after a respawn. |
 | `game.friendly-fire` | `false` | `true` lets teammates hurt each other. |

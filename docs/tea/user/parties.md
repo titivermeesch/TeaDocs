@@ -9,7 +9,7 @@ TeaCore works with two party plugins: [Parties](https://www.spigotmc.org/resourc
 
 - When the party leader uses `/play <game>` (or `/play <game> ranked`), every party member on the same server who isn't in a match comes along.
 - The party lands in one arena. TeaCore only picks an arena with room for the whole party.
-- In team games, party members join the same team while it has room. A big party can make teams uneven.
+- In team games, party members join the same team while it has room. A big party can make teams uneven. When the party is the only group in the match, TeaCore splits it so the match has two teams.
 - On a network the lobby queues the party together and routes everyone to the same arena.
 - Members get a chat line saying the leader took the party to the game.
 - In ranked play the party is matched on the average rating of its members.

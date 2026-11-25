@@ -139,6 +139,10 @@ Players who join an arena wait there until the countdown ends. You choose where:
 
 TeaCore uses the first one that's set. Spectators always go straight into the arena.
 
+If players leave in the last seconds before the match and too few are left, or everyone left is on one team, the match doesn't start. The arena goes back to waiting and the players return to where they wait.
+
+A player who quits during a match leaves it. They are moved to the lobby spawn (or the main world's spawn) with an empty inventory, so they never log back in inside an arena.
+
 ![Waiting for a match: the kit picker in slot 1 and the leave item in slot 9](/img/tea/waiting.png)
 
 ### Waiting rooms
@@ -170,7 +174,7 @@ Then choose where it's used:
 
 A map's own room wins over the game's room. A map without one uses the game's room, and a game without one falls back to a shared waiting area or the map's waiting spawn. New assignments apply to arenas opened after the change.
 
-Rooms live in `plugins/TeaCore/waiting-rooms/`: one schematic per room and `waiting-rooms.yml` with the spawns and assignments. Like maps, they're stored in the database and every server gets them (see [Arena servers](./hosting.md)). Rooms need the same things as maps: WorldEdit or FastAsyncWorldEdit on 1.13 and newer, nothing extra on older versions. Every command needs the `tea.arena.admin` permission.
+Rooms live in `plugins/TeaCore/waiting-rooms/`: one schematic per room and `waiting-rooms.yml` with the spawns and assignments. Like maps, they're stored in the database and every server gets them (see [Arena servers](./hosting.md)). Rooms need the same things as maps: WorldEdit or FastAsyncWorldEdit on 1.16.5 and newer, nothing extra on older versions. Every command needs the `tea.arena.admin` permission.
 
 ### A shared waiting area
 

@@ -174,4 +174,4 @@ maps:
           - { id: "fireball:powerups-0", x: 32.5, y: 5, z: 32.5, yaw: 0.0, pitch: 0.0 }
 ```
 
-You can hand-edit this file and run `/tea map reload`. Keep the schematic file and the YAML entry together when you copy a map to another server. A `.schematic` map works on every version; a `.schem` map only on 1.13 and newer.
+You can hand-edit this file and run `/tea map reload`. Keep the schematic file and the YAML entry together when you copy a map to another server. A `.schematic` map works on every version; a `.schem` map only on 1.16.5 and newer.

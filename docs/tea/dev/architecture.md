@@ -5,7 +5,7 @@ title: Architecture
 
 # Architecture
 
-Tea is one Paper (or Spigot) plugin built with Gradle (Kotlin DSL) and shaded into a fat jar. It runs from 1.8.8 to the latest release: shared code compiles against both the 1.8.8 and the modern API, and version-specific code lives in two platforms picked at startup (see [Supporting every version](./platform.md)):
+Tea is one Paper (or Spigot) plugin built with Gradle (Kotlin DSL) and shaded into a fat jar. It runs from 1.8.8 to 1.12.2 and 1.16.5 to the latest release: shared code compiles against both the 1.8.8 and the modern API, and version-specific code lives in two platforms picked at startup (see [Supporting every version](./platform.md)):
 
 - **TeaCore**: the engine. It holds the shared infrastructure, plus the hub-side lobby UI (`/play`, `/leave`, connection signs, lobby spawn / gamemode management) gated by `lobby.enabled` in `plugins/TeaCore/config.yml`.
 

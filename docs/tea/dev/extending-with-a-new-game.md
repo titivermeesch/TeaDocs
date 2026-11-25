@@ -17,7 +17,7 @@ api-version: '1.13'
 depend: [TeaCore]
 ```
 
-Keep `api-version` at `'1.13'`. A server refuses to load a plugin whose `api-version` is newer than the server itself, so `'1.21'` would lock out everything from 1.13 to 1.20. Servers older than 1.13 ignore the field. To run on every version TeaCore supports (1.8.8 to the latest), build against both server APIs and use `core.platform()` for anything version-specific: see [Supporting every version](./platform.md).
+Keep `api-version` at `'1.13'`. A server refuses to load a plugin whose `api-version` is newer than the server itself, so `'1.21'` would lock out everything from 1.16.5 to 1.20. Servers older than 1.13 ignore the field. To run on every version TeaCore supports (1.8.8 to the latest), build against both server APIs and use `core.platform()` for anything version-specific: see [Supporting every version](./platform.md).
 
 If your game uses other plugins that must be present at enable time, add them to `depend:`. For example, a game that relies on LibsDisguises for mob morphs would declare `depend: [TeaCore, LibsDisguises]`.
 
